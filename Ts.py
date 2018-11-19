@@ -57,6 +57,6 @@ if __name__ == "__main__":
                 MainWindow.tableWidget.item(row, col).setText(dat[i])
                 i += 1
 
-
+    #MainWindow.tableWidget.item(2, 6).coubleClicked.connect()
     MainWindow.btn.clicked.connect(load)
     sys.exit(app.exec_())
