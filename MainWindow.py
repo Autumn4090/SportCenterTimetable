@@ -926,4 +926,3 @@ class Ui_MainWindow(object):
         self.cbox.setItemText(1, _translate("MainWindow", "3F"))
         self.menuSetting.setTitle(_translate("MainWindow", "Setting"))
         self.actionLogin.setText(_translate("MainWindow", "Login"))
-
