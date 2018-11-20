@@ -2,10 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+
 class SportCenter():
 	"""
 		# Todo: Add login function
-		# Todo: Fix previous week function
+		# Todo: Add next week function (Done)
 		# Todo: Add register function
 	"""
 
@@ -40,11 +41,14 @@ class SportCenter():
 				if data[i].startswith('<a'):
 					a = re.search('''14dot1b.gif"/?> ?\((\d{,3})\)<''', data[i]) #o
 					b = re.search('''actn010_2.gif"/?> ?\((\d{,3})\)<''', data[i]) #v
+					c = re.search('''#696969">(.*?)<''', data[i]) #現場訂位
 					if a and b:
 						data[i] = 'ｏ{} ✓{}'.format(a[1], b[1])
+					elif a and c:
+						data[i] = 'ｏ{}\n{}'.format(a[1], c[1])
 					elif a:
 						data[i] = 'ｏ{}'.format(a[1])
 					elif b:
 						data[i] = '✓{}'.format(b[1])
-				i+=1
+				i += 1
 		return data

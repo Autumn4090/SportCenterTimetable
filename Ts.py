@@ -20,7 +20,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		# self.tableWidget.cellClicked.connect(self.on_click)
 		self.week = 0
 		self.lbl_next.mouseReleaseEvent = self.label_next
-		# self.lbl_previous.mouseReleaseEvent = self.label_previous
+		self.lbl_previous.mouseReleaseEvent = self.label_previous
 		self.actionLogin.triggered.connect(self.login)
 		self.actionExit.triggered.connect(self.close)
 
@@ -47,23 +47,20 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	def on_click(self, row, column):
 		print(self.tableWidget.item(row, column).text())
 
-	def label_next(self, event):
+	def label_next(self, _):
 		self.week += 1
 		date = str(datetime.date.today() + datetime.timedelta(days=self.week * 7))
 		print('Today:{} Next:{}'.format(datetime.date.today(), date))
 		self.load(date)
 
-	def label_previous(self, event):
-		"""
-			Its go the next week, not previous.
-		"""
+	def label_previous(self, _):
 		self.week -= 1
-		date = str(datetime.date.today() - datetime.timedelta(days=self.week * 7))
+		date = str(datetime.date.today() + datetime.timedelta(days=self.week * 7))
 		print('Today:{} Next:{}'.format(datetime.date.today(), date))
 		self.load(date)
 
 	def login(self):
-		print('login test')
+		print('Login Test')
 
 	def main(self):
 		pass
