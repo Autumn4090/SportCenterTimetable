@@ -2261,7 +2261,23 @@
      </property>
     </item>
    </widget>
-   <widget class="QLabel" name="label_previous">
+   <widget class="QLabel" name="lbl_next">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>50</y>
+      <width>58</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="text">
+     <string>下週行程</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_previous">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -2277,19 +2293,6 @@
      <string>上週行程</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_next">
-    <property name="geometry">
-     <rect>
-      <x>750</x>
-      <y>50</y>
-      <width>58</width>
-      <height>15</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>NextWeek</string>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -2302,16 +2305,28 @@
    </property>
    <widget class="QMenu" name="menuSetting">
     <property name="title">
-     <string>Setting</string>
+     <string>Settings</string>
     </property>
     <addaction name="actionLogin"/>
    </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuSetting"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLogin">
    <property name="text">
     <string>Login</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
    </property>
   </action>
  </widget>

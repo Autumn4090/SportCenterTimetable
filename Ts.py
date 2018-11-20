@@ -18,13 +18,20 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.tableWidget.cellDoubleClicked.connect(self.on_click)
 		# self.tableWidget.itemChanged.connect(self.on_click)
 		# self.tableWidget.cellClicked.connect(self.on_click)
-		self.label_next.mouseReleaseEvent = self.label_next
-		# self.label_previous.mouseReleaseEvent = self.label_previous
+		self.week = 0
+		self.lbl_next.mouseReleaseEvent = self.label_next
+		# self.lbl_previous.mouseReleaseEvent = self.label_previous
+		self.actionLogin.triggered.connect(self.login)
+		self.actionExit.triggered.connect(self.close)
 
-	def load(self):
+	def load(self, date=''):
+		if not date: # is it possible to code more beauty
+			self.week = 0 #
+			date = str(datetime.date.today()) #
+
 		floor = self.cbox.currentText()
 		print(floor)
-		data = sc.parse_timetable(sc.get_timetable(floor))
+		data = sc.parse_timetable(sc.get_timetable(floor, date))
 		self.connect_table_items(self.tableWidget, data)
 
 	def connect_table_items(self, widget, data):
@@ -41,9 +48,22 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		print(self.tableWidget.item(row, column).text())
 
 	def label_next(self, event):
-		print('Test')
-		date = str(datetime.date.today() + datetime.timedelta(days=7))
+		self.week += 1
+		date = str(datetime.date.today() + datetime.timedelta(days=self.week * 7))
+		print('Today:{} Next:{}'.format(datetime.date.today(), date))
 		self.load(date)
+
+	def label_previous(self, event):
+		"""
+			Its go the next week, not previous.
+		"""
+		self.week -= 1
+		date = str(datetime.date.today() - datetime.timedelta(days=self.week * 7))
+		print('Today:{} Next:{}'.format(datetime.date.today(), date))
+		self.load(date)
+
+	def login(self):
+		print('login test')
 
 	def main(self):
 		pass

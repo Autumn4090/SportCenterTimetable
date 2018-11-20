@@ -5,7 +5,7 @@ import re
 class SportCenter():
 	"""
 		# Todo: Add login function
-		# Todo: Add next week function
+		# Todo: Fix previous week function
 		# Todo: Add register function
 	"""
 
@@ -38,8 +38,8 @@ class SportCenter():
 		for row in range(0, 15):
 			for col in range(0, 8):
 				if data[i].startswith('<a'):
-					a = re.search('''14dot1b.gif"/?> \((\d{,2})\)<''', data[i]) #o
-					b = re.search('''actn010_2.gif"/?> \((\d{,2})\)<''', data[i]) #v
+					a = re.search('''14dot1b.gif"/?> ?\((\d{,3})\)<''', data[i]) #o
+					b = re.search('''actn010_2.gif"/?> ?\((\d{,3})\)<''', data[i]) #v
 					if a and b:
 						data[i] = 'ｏ{} ✓{}'.format(a[1], b[1])
 					elif a:
