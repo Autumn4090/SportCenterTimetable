@@ -68,4 +68,14 @@ class SportCenter():
 		soup = BeautifulSoup(self.s.post(url_log, data).text, 'html.parser')
 		check = soup.find('span', id='ctl00_lblShow')
 		if check:
-			print(check)
+			return str(check)[67:-48]
+		return check
+
+	def register(self, link):
+		url = self.root_url + '/facilities/' + link
+		print(url)
+		soup = BeautifulSoup(self.s.get(url).text, 'html.parser')
+		print(self.s.get(url).text)
+		table = soup.find('table', class_='table')
+		print(table)
+
