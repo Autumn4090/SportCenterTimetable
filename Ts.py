@@ -1,3 +1,4 @@
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem
 import MainWindow
 import sys
@@ -48,6 +49,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		print(self.tableWidget.item(row, column).text())
 		if (row, column) in sc.orderlink.keys():
 			print(sc.orderlink[(row, column)])
+			sc.register(sc.orderlink[(row, column)])
 
 	def label_next(self, _):
 		self.week += 1
@@ -63,8 +65,18 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 
 	def login(self):
 		data = {'user': self.tb_user.text(), 'pass': self.tb_pass.text(), 'Submit': '登入'}
-		# print(data['user'], data['pass'])
-		sc.login(data)
+		print(data['user'], data['pass'])
+		user = sc.login(data)
+
+		if user:
+			self.horizontalLayoutWidget.setGeometry(QtCore.QRect(620, 750, 441, 51)) # lazy reuse the lbl_user
+			self.lbl_user.setText('{}'.format(user))
+			self.lbl_pass.hide()
+			self.tb_user.hide()
+			self.tb_pass.hide()
+			self.btn_login.hide()
+		else:
+			print('密碼錯誤')
 
 	def main(self):
 		pass
