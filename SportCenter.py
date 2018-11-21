@@ -16,7 +16,7 @@ class SportCenter():
 		x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36'})
 		self.root_url = 'http://info2.ntu.edu.tw'
 
-	def get_timetable(self, floor, date='2018/11/24'):
+	def get_timetable(self, floor, date):
 		"""
 			placeSeq=1 -> 3F
 			placeSeq=2 -> 1F

@@ -12,26 +12,23 @@ s = requests.Session()
 class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	def __init__(self):
 		super(self.__class__, self).__init__()
+		self.show()
+		self.week = 0
 		self.setupUi(self)
 		self.btn.clicked.connect(self.load)
-		self.tableWidget.cellDoubleClicked.connect(self.on_click)
+		self.tableWidget.cellPressed.connect(self.on_click)
 		# self.tableWidget.itemChanged.connect(self.on_click)
 		# self.tableWidget.cellClicked.connect(self.on_click)
-		self.week = 0
-		self.lbl_next.mouseReleaseEvent = self.label_next
-		self.lbl_previous.mouseReleaseEvent = self.label_previous
+		self.lbl_next.mousePressEvent = self.label_next
+		self.lbl_previous.mousePressEvent = self.label_previous
 		self.actionLogin.triggered.connect(self.login)
 		self.actionExit.triggered.connect(self.close)
 
-	def load(self, date=''):
-		if not date: # is it possible to code more beauty
-			self.week = 0 #
-			date = str(datetime.date.today()) #
-
+	def load(self, date):
 		floor = self.cbox.currentText()
 		print(floor)
 		data = sc.parse_timetable(sc.get_timetable(floor, date))
-		self.connect_table_items(self.tableWidget, data)
+		self.update_table_items(self.tableWidget, data)
 
 	def update_table_items(self, widget, data):
 		i = 0
@@ -44,9 +41,8 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			# I dont know why
 
 	def on_click(self, row ,column):
+		# register()
 		print(self, row, column)
-		print(self.tableWidget.item(row, column).text())
-	def on_click(self, row, column):
 		print(self.tableWidget.item(row, column).text())
 
 	def label_next(self, _):
@@ -70,7 +66,5 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	MainWindow = Main()
-	MainWindow.show()
-
 	sc = SportCenter()
 	sys.exit(app.exec_())
