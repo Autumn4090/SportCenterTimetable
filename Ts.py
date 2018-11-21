@@ -21,7 +21,9 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.week = 0
 		self.lbl_next.mouseReleaseEvent = self.label_next
 		self.lbl_previous.mouseReleaseEvent = self.label_previous
-		self.actionLogin.triggered.connect(self.login)
+
+		self.btn_login.clicked.connect(self.login)
+		# self.actionLogin.triggered.connect(self.login)
 		self.actionExit.triggered.connect(self.close)
 
 	def load(self, date=''):
@@ -45,7 +47,10 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 				i += 1
 
 	def on_click(self, row, column):
+		print('({}, {})'.format(row, column))
 		print(self.tableWidget.item(row, column).text())
+		if (row, column) in sc.orderlink.keys():
+			print(sc.orderlink[(row, column)])
 
 	def label_next(self, _):
 		self.week += 1
@@ -60,7 +65,9 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.load(date)
 
 	def login(self):
-		print('Login Test')
+		data = {'user': self.tb_user.text(), 'pass': self.tb_pass.text(), 'Submit': '登入'}
+		# print(data['user'], data['pass'])
+		sc.login(data)
 
 	def main(self):
 		pass
