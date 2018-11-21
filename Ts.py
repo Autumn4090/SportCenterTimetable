@@ -27,8 +27,9 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.actionExit.triggered.connect(self.close)
 
 	def load(self, date):
+		date = datetime.date.today() if date == False else date
 		floor = self.cbox.currentText()
-		print(floor)
+		print(floor, date)
 		data = sc.parse_timetable(sc.get_timetable(floor, date))
 		self.update_table_items(self.tableWidget, data)
 

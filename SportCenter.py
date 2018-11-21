@@ -17,7 +17,7 @@ class SportCenter():
 		self.root_url = 'http://info2.ntu.edu.tw'
 		self.orderlink = dict()
 
-	def get_timetable(self, floor, date):
+	def get_timetable(self, floor, date='2018/11/24'):
 		"""
 			placeSeq=1 -> 3F
 			placeSeq=2 -> 1F
