@@ -22,6 +22,8 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.lbl_next.mousePressEvent = self.label_next
 		self.lbl_previous.mousePressEvent = self.label_previous
 		self.actionLogin.triggered.connect(self.login)
+		self.btn_login.clicked.connect(self.login)
+		# self.actionLogin.triggered.connect(self.login)
 		self.actionExit.triggered.connect(self.close)
 
 	def load(self, date):
@@ -40,10 +42,11 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			# This one is needed for updating text on mac
 			# I dont know why
 
-	def on_click(self, row ,column):
-		# register()
-		print(self, row, column)
+	def on_click(self, row, column):
+		print('({}, {})'.format(row, column))
 		print(self.tableWidget.item(row, column).text())
+		if (row, column) in sc.orderlink.keys():
+			print(sc.orderlink[(row, column)])
 
 	def label_next(self, _):
 		self.week += 1
@@ -58,7 +61,9 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.load(date)
 
 	def login(self):
-		print('Login Test')
+		data = {'user': self.tb_user.text(), 'pass': self.tb_pass.text(), 'Submit': '登入'}
+		# print(data['user'], data['pass'])
+		sc.login(data)
 
 	def main(self):
 		pass
