@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import datetime
-from SportCenter import SportCenter
+from SportCenter import SportCenter, PATH_TO_AC, FILENAME
 
 s = requests.Session()
 
@@ -26,9 +26,14 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.btn_login.clicked.connect(self.login)
 		# self.actionLogin.triggered.connect(self.login)
 		self.actionExit.triggered.connect(self.close)
+		user = sc.auto_login()
+		if user:
+			self.update_login(user)
+
 
 	def load(self, date):
-		date = datetime.date.today() if date == False else date
+		if date == False:
+			date = datetime.date.today()
 		floor = self.cbox.currentText()
 		print(floor, date)
 		data = sc.parse_timetable(sc.get_timetable(floor, date))
@@ -64,11 +69,20 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.load(date)
 
 	def login(self):
-		data = {'user': self.tb_user.text(), 'pass': self.tb_pass.text(), 'Submit': '登入'}
-		print(data['user'], data['pass'])
-		user = sc.login(data)
+		username = self.tb_user.text()
+		password = self.tb_pass.text()
+		sc.username = username
+		sc.password = password
+		if username == "" or password == "":
+			print("Username or Password empty")
+			# Do something
+		print(username, password)
+		user = sc.login()
+		self.update_login(user)
 
+	def update_login(self, user):
 		if user:
+			sc.store_account(PATH_TO_AC, FILENAME)
 			self.horizontalLayoutWidget.setGeometry(QtCore.QRect(620, 750, 441, 51)) # lazy reuse the lbl_user
 			self.lbl_user.setText('{}'.format(user))
 			self.lbl_pass.hide()
@@ -78,11 +92,13 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		else:
 			print('密碼錯誤')
 
+
 	def main(self):
 		pass
 
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
-	MainWindow = Main()
 	sc = SportCenter()
+
+	MainWindow = Main()
 	sys.exit(app.exec_())

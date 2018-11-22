@@ -1,11 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import os
 
+# Example path: 'C:\\example\\folder'
+# Example filename: 'filename'
+# Change IT!!!!!!
+raise Exception
+PATH_TO_AC = "C:\\Example\\folder"
+FILENAME = "ac"
 
 class SportCenter():
 	"""
-		# Todo: Add login function
+		# Todo: Add login function (Done?)
 		# Todo: Add next week function (Done)
 		# Todo: Add register function
 	"""
@@ -16,6 +23,8 @@ class SportCenter():
 		x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36'})
 		self.root_url = 'http://info2.ntu.edu.tw'
 		self.orderlink = dict()
+		self.username = str()
+		self.password = str()
 
 	def get_timetable(self, floor, date='2018/11/24'):
 		"""
@@ -60,9 +69,10 @@ class SportCenter():
 				i += 1
 		return data
 
-	def login(self, data):
-		url_session = 'https://info2.ntu.edu.tw/facilities/SessionLogin.aspx'
-		_ = self.s.get(url_session) # get session
+	def login(self):
+		data = {'user': self.username, 'pass': self.password, 'Submit': '登入'}
+		url_session = self.root_url + '/facilities/SessionLogin.aspx'
+		self.s.get(url_session) # get COOKIES
 
 		url_log = 'https://web2.cc.ntu.edu.tw/p/s/login2/p1.php'
 		soup = BeautifulSoup(self.s.post(url_log, data).text, 'html.parser')
@@ -79,3 +89,29 @@ class SportCenter():
 		print(self.s.get(url).text)
 		table = soup.find('table', class_='table')
 		print(table)
+
+	def store_account(self, path, filename):
+		# os.path.join(path, filename) is better than path + filename
+		with open(os.path.join(path, filename), 'w+') as f:
+			f.write('{},{}'.format(self.username, self.password))
+
+	def read_account(self, path, filename):
+		path_to_file = os.path.join(path, filename)
+		if os.path.isfile(path_to_file):
+			with open(path_to_file, 'r') as f:
+				line = f.readline().strip().split(',')
+				if len(line) == 1:
+					return False
+				self.username = line[0]
+				self.password = line[1]
+				if self.username == "" or self.password == "":
+					return False
+				return True
+		else:
+			return False
+
+	def auto_login(self):
+		if self.read_account(PATH_TO_AC, FILENAME):
+			return self.login()
+		else:
+			return False
