@@ -15,7 +15,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.week = 0
 		self.setupUi(self)
 		self.btn.clicked.connect(self.load)
-		self.tableWidget.cellDoubleClicked.connect(self.on_click)
+		self.tableWidget.cellDoubleClicked.connect(self.cell_on_click)
 		self.lbl_next.mousePressEvent = self.label_next
 		self.lbl_previous.mousePressEvent = self.label_previous
 		self.actionLogin.triggered.connect(self.login)
@@ -47,14 +47,14 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			# This one is needed for updating text on mac
 			# I dont know why
 
-	def on_click(self, row, column):
+	def cell_on_click(self, row, column):
 		print('({}, {})'.format(row, column))
 		print(self.tableWidget.item(row, column).text())
-		if (row, column) in sc.orderlink.keys():
+		if sc.orderlink.get((row, column)):
 			self.link = sc.orderlink[(row, column)]
 			comfirm = sc.reg_confirm(self.link)
 			for row in range(1, 15):
-				self.Reg.tableWidget.item(row, 1).setText(comfirm[(row, 1)])
+				self.Reg.tableWidget.item(row, 1).setText(comfirm[row-1])
 			self.reg()
 
 	def label_next(self, _):

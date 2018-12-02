@@ -110,22 +110,21 @@ class SportCenter():
 		print(url)
 		soup = BeautifulSoup(self.s.get(url).text, 'html.parser')
 		# table = soup.find('table', class_='table')
-
-		confirm = {(1, 1): soup.find('span', id='ctl00_ContentPlaceHolder1_lblbookSeq').string,
-				(2, 1): soup.find('span', id='ctl00_ContentPlaceHolder1_lblplaceName').string,
-				(3, 1): soup.find('span', class_='spanFrontMark').string,
-				(4, 1): soup.find('span', id='ctl00_ContentPlaceHolder1_lblmemberName').string,
-				(5, 1): '', # 'ctl00_ContentPlaceHolder1_txtContactName'
-				(6, 1): '', # 'ctl00_ContentPlaceHolder1_txtContactTel'
-				(7, 1): '', # 'ctl00_ContentPlaceHolder1_txtFax'
-				(8, 1): 'kw904@hotmail.com(搵細宏搞)', # 'ctl00_ContentPlaceHolder1_txtEmail'
-				(9, 1): soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayType').string,
-				(10, 1): '現金',
-				(11, 1): soup.find('span', id='ctl00_ContentPlaceHolder1_lblDate').string,
-				(12, 1): '{}:00 至 {}:00'.format(soup.find('input', id='ctl00_ContentPlaceHolder1_hidsTime')['value'],
+		confirm = [soup.find('span', id='ctl00_ContentPlaceHolder1_lblbookSeq').string,
+				    soup.find('span', id='ctl00_ContentPlaceHolder1_lblplaceName').string,
+				    soup.find('span', class_='spanFrontMark').string,
+				    soup.find('span', id='ctl00_ContentPlaceHolder1_lblmemberName').string,
+					'', # 'ctl00_ContentPlaceHolder1_txtContactName'
+					'', # 'ctl00_ContentPlaceHolder1_txtContactTel'
+					'', # 'ctl00_ContentPlaceHolder1_txtFax'
+					'kw904@hotmail.com(搵細宏搞)', # 'ctl00_ContentPlaceHolder1_txtEmail'
+					soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayType').string,
+					'現金',
+					soup.find('span', id='ctl00_ContentPlaceHolder1_lblDate').string,
+					'{}:00 至 {}:00'.format(soup.find('input', id='ctl00_ContentPlaceHolder1_hidsTime')['value'],
 												soup.find('input', id='ctl00_ContentPlaceHolder1_hideTime')['value']),
-				(13, 1): soup.find('input', id='ctl00_ContentPlaceHolder1_txtPlaceNum')['value'],
-				(14, 1): re.search('(\$NT.*?\))', str(soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayStand')))[0]}
+					soup.find('input', id='ctl00_ContentPlaceHolder1_txtPlaceNum')['value'],
+					re.search('(\$NT.*?\))', str(soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayStand')))[0]]
 		return confirm
 
 	def reg_order(self, link):
@@ -163,4 +162,3 @@ class SportCenter():
 				'ctl00$ContentPlaceHolder1$hidWeek': soup.find('input', id='ctl00_ContentPlaceHolder1_hidWeek')['value'],
 				'ctl00$ContentPlaceHolder1$hiddateLst': soup.find('input', id='ctl00_ContentPlaceHolder1_hiddateLst')['value']}
 		self.s.post(url, data=data)
-		
