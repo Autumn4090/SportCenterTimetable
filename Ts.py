@@ -1,14 +1,12 @@
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLineEdit
 import MainWindow
+import LoginWindow
+import RegWindow
 import sys
-import requests
-from bs4 import BeautifulSoup
-import re
 import datetime
 from SportCenter import SportCenter, PATH_TO_AC, FILENAME
 
-s = requests.Session()
 
 class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	def __init__(self):
@@ -17,19 +15,19 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.week = 0
 		self.setupUi(self)
 		self.btn.clicked.connect(self.load)
-		self.tableWidget.cellPressed.connect(self.on_click)
-		# self.tableWidget.itemChanged.connect(self.on_click)
-		# self.tableWidget.cellClicked.connect(self.on_click)
+		self.tableWidget.cellDoubleClicked.connect(self.on_click)
 		self.lbl_next.mousePressEvent = self.label_next
 		self.lbl_previous.mousePressEvent = self.label_previous
 		self.actionLogin.triggered.connect(self.login)
-		self.btn_login.clicked.connect(self.login)
-		# self.actionLogin.triggered.connect(self.login)
 		self.actionExit.triggered.connect(self.close)
+
+		self.Log = Login()
+		self.Reg = Register()
+		self.link = ''
+
 		user = sc.auto_login()
 		if user:
-			self.update_login(user)
-
+			self.lbl_status.setText('{}'.format(user))
 
 	def load(self, date):
 		if date == False:
@@ -53,20 +51,35 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		print('({}, {})'.format(row, column))
 		print(self.tableWidget.item(row, column).text())
 		if (row, column) in sc.orderlink.keys():
-			print(sc.orderlink[(row, column)])
-			sc.register(sc.orderlink[(row, column)])
+			self.link = sc.orderlink[(row, column)]
+			comfirm = sc.reg_confirm(self.link)
+			for row in range(1, 15):
+				self.Reg.tableWidget.item(row, 1).setText(comfirm[(row, 1)])
+			self.reg()
 
 	def label_next(self, _):
 		self.week += 1
 		date = str(datetime.date.today() + datetime.timedelta(days=self.week * 7))
-		print('Today:{} Next:{}'.format(datetime.date.today(), date))
 		self.load(date)
 
 	def label_previous(self, _):
 		self.week -= 1
 		date = str(datetime.date.today() + datetime.timedelta(days=self.week * 7))
-		print('Today:{} Next:{}'.format(datetime.date.today(), date))
 		self.load(date)
+
+	def login(self):
+		self.Log.show()
+
+	def reg(self):
+		self.Reg.show()
+
+
+class Login(QMainWindow, LoginWindow.Ui_LoginWindow):
+	def __init__(self):
+		super(self.__class__, self).__init__()
+		self.setupUi(self)
+		self.btn_login.clicked.connect(self.login)
+		self.btn_cancel.clicked.connect(self.close)
 
 	def login(self):
 		username = self.tb_user.text()
@@ -78,23 +91,25 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			# Do something
 		print(username, password)
 		user = sc.login()
-		self.update_login(user)
-
-	def update_login(self, user):
 		if user:
-			sc.store_account(PATH_TO_AC, FILENAME)
-			self.horizontalLayoutWidget.setGeometry(QtCore.QRect(620, 750, 441, 51)) # lazy reuse the lbl_user
-			self.lbl_user.setText('{}'.format(user))
-			self.lbl_pass.hide()
-			self.tb_user.hide()
-			self.tb_pass.hide()
-			self.btn_login.hide()
+			MainWindow.lbl_status.setText('{}'.format(user))
+			self.hide()
 		else:
 			print('密碼錯誤')
 
 
-	def main(self):
-		pass
+class Register(QMainWindow, RegWindow.Ui_RegWindow):
+	def __init__(self):
+		super(self.__class__, self).__init__()
+		self.setupUi(self)
+		self.tableWidget.setSpan(0, 0, 1, 2)
+		self.btn_cancel.clicked.connect(self.close)
+		self.btn_order.clicked.connect(self.order)
+
+	def order(self):
+		link = MainWindow.link
+		sc.reg_order(link)
+
 
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
