@@ -22,6 +22,9 @@ class SportCenter():
 		self.orderlink = dict()
 		self.username = str()
 		self.password = str()
+		self.is_login = False
+		self.clickable = dict()
+		# a map for storeing the bookable cells
 
 	def get_timetable(self, floor, date='2018/11/24'):
 		"""
@@ -42,6 +45,7 @@ class SportCenter():
 		"""
 		td = re.compile('>(.*?)</td>')
 		data = re.findall(td, str(timetable))
+		color_map = {}
 		i = 0
 		for row in range(0, 15):
 			for col in range(0, 8):
@@ -54,6 +58,7 @@ class SportCenter():
 					if "預約" in data[i]:
 						d = re.search('''<img alt="預約" id="btnOrder" onclick="javascript:location.href='(.*?)'" ''', data[i])
 						self.orderlink[(row, col)] = d[1].replace('&amp;', '&').replace('§', '&sect')
+						self.clickable[(row, col)] = True
 
 					if a and b:
 						data[i] = 'ｏ{} ✓{}'.format(a[1], b[1])
@@ -75,7 +80,7 @@ class SportCenter():
 		soup = BeautifulSoup(self.s.post(url_log, data).text, 'html.parser')
 		check = soup.find('span', id='ctl00_lblShow')
 		if check:
-			self.store_account(PATH_TO_AC, FILENAME)
+			# self.store_account(PATH_TO_AC, FILENAME)
 			return str(check)[67:-48]
 		return check
 
@@ -162,3 +167,4 @@ class SportCenter():
 				'ctl00$ContentPlaceHolder1$hidWeek': soup.find('input', id='ctl00_ContentPlaceHolder1_hidWeek')['value'],
 				'ctl00$ContentPlaceHolder1$hiddateLst': soup.find('input', id='ctl00_ContentPlaceHolder1_hiddateLst')['value']}
 		self.s.post(url, data=data)
+		# Todo: Check if registered succesfully

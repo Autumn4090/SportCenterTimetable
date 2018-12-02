@@ -1,4 +1,4 @@
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLineEdit
 import MainWindow
 import LoginWindow
@@ -12,7 +12,6 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	def __init__(self):
 		super(self.__class__, self).__init__()
 		self.show()
-		self.week = 0
 		self.setupUi(self)
 		self.btn.clicked.connect(self.load)
 		self.tableWidget.cellDoubleClicked.connect(self.cell_on_click)
@@ -23,7 +22,8 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 
 		self.Log = Login()
 		self.Reg = Register()
-		self.link = ''
+		self.selected_link = ''
+		self.week = 0
 
 		user = sc.auto_login()
 		if user:
@@ -42,20 +42,30 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		for row in range(0, 15):
 			for col in range(0, 8):
 				self.tableWidget.item(row, col).setText(data[i])
+				if sc.clickable.get((row, col)):
+					brush = QtGui.QBrush(QtGui.QColor(0, 250, 0))
+					brush.setStyle(QtCore.Qt.SolidPattern)
+					self.tableWidget.item(row, col).setBackground(brush)
 				i += 1
 			app.processEvents()
 			# This one is needed for updating text on mac
 			# I dont know why
 
-	def cell_on_click(self, row, column):
-		print('({}, {})'.format(row, column))
-		print(self.tableWidget.item(row, column).text())
-		if sc.orderlink.get((row, column)):
-			self.link = sc.orderlink[(row, column)]
-			comfirm = sc.reg_confirm(self.link)
-			for row in range(1, 15):
-				self.Reg.tableWidget.item(row, 1).setText(comfirm[row-1])
-			self.reg()
+	def cell_on_click(self, row, col):
+		if sc.clickable.get((row, col)) == None:
+			return
+		elif not sc.is_login:
+			self.login()
+			return
+
+		print('({}, {})'.format(row, col))
+		print(self.tableWidget.item(row, col).text())
+
+		self.selected_link = sc.orderlink[(row, col)]
+		comfirm = sc.reg_confirm(self.selected_link)
+		for row in range(1, 15):
+			self.Reg.tableWidget.item(row, 1).setText(comfirm[row-1])
+		self.reg()
 
 	def label_next(self, _):
 		self.week += 1
@@ -93,6 +103,7 @@ class Login(QMainWindow, LoginWindow.Ui_LoginWindow):
 		user = sc.login()
 		if user:
 			MainWindow.lbl_status.setText('{}'.format(user))
+			sc.is_login = True
 			self.hide()
 		else:
 			print('密碼錯誤')
@@ -107,7 +118,7 @@ class Register(QMainWindow, RegWindow.Ui_RegWindow):
 		self.btn_order.clicked.connect(self.order)
 
 	def order(self):
-		link = MainWindow.link
+		link = MainWindow.selected_link
 		sc.reg_order(link)
 
 
