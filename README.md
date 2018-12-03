@@ -12,6 +12,7 @@
 ```
   requests
   BeautifulSoup
+  PyQt5
 ```
 
 ## To Do List
