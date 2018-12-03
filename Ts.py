@@ -103,7 +103,6 @@ class Login(QMainWindow, LoginWindow.Ui_LoginWindow):
 		user = sc.login()
 		if user:
 			MainWindow.lbl_status.setText('{}'.format(user))
-			sc.is_login = True
 			self.hide()
 		else:
 			print('密碼錯誤')
