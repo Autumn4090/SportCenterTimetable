@@ -81,6 +81,7 @@ class SportCenter():
 		check = soup.find('span', id='ctl00_lblShow')
 		if check:
 			# self.store_account(PATH_TO_AC, FILENAME)
+			self.is_login = True
 			return str(check)[67:-48]
 		return check
 
