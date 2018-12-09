@@ -12,7 +12,7 @@ class SportCenter():
 		# Todo: Add login function (Done)
 		# Todo: Add logout function
 		# Todo: Add next week function (Done)
-		# Todo: Add register function
+		# Todo: Add register function (-Check)
 		# Todo: Add cancel function
 	"""
 
@@ -119,20 +119,20 @@ class SportCenter():
 		soup = BeautifulSoup(self.s.get(url).text, 'html.parser')
 		# table = soup.find('table', class_='table')
 		confirm = [soup.find('span', id='ctl00_ContentPlaceHolder1_lblbookSeq').string,
-				    soup.find('span', id='ctl00_ContentPlaceHolder1_lblplaceName').string,
-				    soup.find('span', class_='spanFrontMark').string,
-				    soup.find('span', id='ctl00_ContentPlaceHolder1_lblmemberName').string,
-					'', # 'ctl00_ContentPlaceHolder1_txtContactName'
-					'', # 'ctl00_ContentPlaceHolder1_txtContactTel'
-					'', # 'ctl00_ContentPlaceHolder1_txtFax'
-					'kw904@hotmail.com(搵細宏搞)', # 'ctl00_ContentPlaceHolder1_txtEmail'
-					soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayType').string,
-					'現金',
-					soup.find('span', id='ctl00_ContentPlaceHolder1_lblDate').string,
-					'{}:00 至 {}:00'.format(soup.find('input', id='ctl00_ContentPlaceHolder1_hidsTime')['value'],
-												soup.find('input', id='ctl00_ContentPlaceHolder1_hideTime')['value']),
-					soup.find('input', id='ctl00_ContentPlaceHolder1_txtPlaceNum')['value'],
-					re.search('(\$NT.*?\))', str(soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayStand')))[0]]
+				soup.find('span', id='ctl00_ContentPlaceHolder1_lblplaceName').string,
+				soup.find('span', class_='spanFrontMark').string,
+				soup.find('span', id='ctl00_ContentPlaceHolder1_lblmemberName').string,
+				'', # 'ctl00_ContentPlaceHolder1_txtContactName'
+				'', # 'ctl00_ContentPlaceHolder1_txtContactTel'
+				'', # 'ctl00_ContentPlaceHolder1_txtFax'
+				'kw904@hotmail.com(搵細宏搞)', # 'ctl00_ContentPlaceHolder1_txtEmail'
+				soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayType').string,
+				'現金',
+				soup.find('span', id='ctl00_ContentPlaceHolder1_lblDate').string,
+				'{}:00 至 {}:00'.format(soup.find('input', id='ctl00_ContentPlaceHolder1_hidsTime')['value'],
+										soup.find('input', id='ctl00_ContentPlaceHolder1_hideTime')['value']),
+				soup.find('input', id='ctl00_ContentPlaceHolder1_txtPlaceNum')['value'],
+				re.search('(\$NT.*?\))', str(soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayStand')))[0]]
 		return confirm
 
 	def reg_order(self, link):
