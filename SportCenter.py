@@ -9,9 +9,11 @@ FILENAME = "Roaming"
 
 class SportCenter():
 	"""
-		# Todo: Add login function (Done?)
+		# Todo: Add login function (Done)
+		# Todo: Add logout function
 		# Todo: Add next week function (Done)
 		# Todo: Add register function
+		# Todo: Add cancel function
 	"""
 
 	def __init__(self):
@@ -80,7 +82,7 @@ class SportCenter():
 		soup = BeautifulSoup(self.s.post(url_log, data).text, 'html.parser')
 		check = soup.find('span', id='ctl00_lblShow')
 		if check:
-			# self.store_account(PATH_TO_AC, FILENAME)
+			self.store_account(PATH_TO_AC, FILENAME)
 			self.is_login = True
 			return str(check)[67:-48]
 		return check
