@@ -10,7 +10,7 @@ from SportCenter import SportCenter, PATH_TO_AC, FILENAME
 
 class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	"""
-	
+
 	"""
 	def __init__(self):
 		super(self.__class__, self).__init__()
@@ -41,13 +41,23 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		data = sc.parse_timetable(sc.get_timetable(floor, date))
 		self.update_table_items(self.tableWidget, data)
 
+	def table_initialize(self):
+		for row in range(1, 15):
+			for col in range(1, 8):
+				brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
+				brush.setStyle(QtCore.Qt.NoBrush)
+				self.tableWidget.item(row, col).setForeground(brush)
+				self.tableWidget.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei UI', 9))
+
 	def update_table_items(self, widget, data):
 		i = 0
+		self.table_initialize()
 		for row in range(0, 15):
 			for col in range(0, 8):
-				self.tableWidget.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei UI', 9))
 				self.tableWidget.item(row, col).setText(data[i])
 				if sc.clickable.get((row, col)):
+					brush = QtGui.QBrush(QtGui.QColor(50, 215, 50))
+					self.tableWidget.item(row, col).setForeground(brush)
 					self.tableWidget.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei UI', 9, QtGui.QFont.Bold))
 				i += 1
 			app.processEvents()
@@ -55,19 +65,16 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			# I dont know why
 
 	def cell_on_click(self, row, col):
-		if sc.clickable.get((row, col)) == None:
+		if sc.clickable.get((row, col)) is None:
 			return
 		elif not sc.is_login:
 			self.login()
 			return
 
-		print('({}, {})'.format(row, col))
-		print(self.tableWidget.item(row, col).text())
-
 		self.selected_link = sc.orderlink[(row, col)]
-		comfirm = sc.reg_confirm(self.selected_link)
+		confirm = sc.reg_confirm(self.selected_link)
 		for row in range(1, 15):
-			self.Reg.tableWidget.item(row, 1).setText(comfirm[row-1])
+			self.Reg.tableWidget.item(row, 1).setText(confirm[row-1])
 		self.reg()
 
 	def label_next(self, _):
