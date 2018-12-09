@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication
 import MainWindow
 import LoginWindow
 import RegWindow
@@ -9,6 +9,9 @@ from SportCenter import SportCenter, PATH_TO_AC, FILENAME
 
 
 class Main(QMainWindow, MainWindow.Ui_MainWindow):
+	"""
+	
+	"""
 	def __init__(self):
 		super(self.__class__, self).__init__()
 		self.show()
@@ -30,7 +33,8 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			self.lbl_status.setText('{}'.format(user))
 
 	def load(self, date):
-		if date == False:
+		sc.clickable = dict()
+		if date is False:
 			date = datetime.date.today()
 		floor = self.cbox.currentText()
 		print(floor, date)
@@ -41,11 +45,10 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		i = 0
 		for row in range(0, 15):
 			for col in range(0, 8):
+				self.tableWidget.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei UI', 9))
 				self.tableWidget.item(row, col).setText(data[i])
 				if sc.clickable.get((row, col)):
-					brush = QtGui.QBrush(QtGui.QColor(0, 250, 0))
-					brush.setStyle(QtCore.Qt.SolidPattern)
-					self.tableWidget.item(row, col).setBackground(brush)
+					self.tableWidget.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei UI', 9, QtGui.QFont.Bold))
 				i += 1
 			app.processEvents()
 			# This one is needed for updating text on mac
