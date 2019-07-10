@@ -1,5 +1,5 @@
 import requests
-# from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 import re
 import os
 import datetime
@@ -43,9 +43,9 @@ class SportCenter():
 			for col in range(0, 8):
 				# print(data[i])
 				if data[i].startswith('<a'):
-					a = re.search('''14dot1b.gif'.*?/> ?\((\d{,3})\)<''', data[i]) #o
-					b = re.search('''actn010_2.gif'.*?/> ?\((\d{,3})\)<''', data[i]) #v
-					c = re.search('''#696969">(.*?)<''', data[i]) #現場訂位
+					a = re.search('''14dot1b.gif['"].*?/> ?\((\d{,3})\)<''', data[i]) #o
+					b = re.search('''actn010_2.gif['"].*?/> ?\((\d{,3})\)<''', data[i]) #v
+					c = re.search('''#696969['"]>(.*?)<''', data[i]) #現場訂位
 
 					if "預約" in data[i]:
 						d = re.search('''onclick=javascript:location.href='(.*?)'>''', data[i])
@@ -67,4 +67,25 @@ class SportCenter():
 				i += 1
 		# print(data)
 		return data
+
+	def login(self):
+		data = {'user': self.username, 'pass': self.password, 'Submit': '登入'}
+		url_session = 'https://info2.ntu.edu.tw/facilities/SessionLogin.aspx' # notice: https
+		self.s.get(url_session) # get COOKIES
+
+		url_log = 'https://web2.cc.ntu.edu.tw/p/s/login2/p1.php'
+		soup = BeautifulSoup(self.s.post(url_log, data).text, 'html.parser')
+		check = soup.find('span', id='ctl00_lblShow')
+		if check:
+			self.is_login = True
+			return str(check)[67:-48]
+		return check
+
+	def status(self):
+		url = self.root_url + '/facilities/PlaceMemberGrd.aspx'
+
+		# 預約編號 (預約日期) (預約時段) (預約場地) 方式 (金額) 收據編號 (狀態)
+		td = re.compile('''</td><td>.*</td><td>(.*)</td><td>(.*)</td><td>(.*)            </td><td>.*      </td><td>(.*)</td><td>.*            </td><td>(.*)</td><td><input ''')
+		data = re.findall(td, self.s.get(url).text)
+		return data[0:19]
 
