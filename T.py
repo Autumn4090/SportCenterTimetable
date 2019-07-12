@@ -14,10 +14,11 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	"""
 	def __init__(self):
 		super(self.__class__, self).__init__()
-		# self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 		self.move(50, 50)
-		self.show()
+		self.setWindowIcon(QtGui.QIcon('Gui/dev.png'))
+		self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
 		self.setupUi(self)
+		self.show()
 		self.lbl_refresh.mousePressEvent = self.refresh
 		self.lbl_next.mousePressEvent = self.label_next
 		self.lbl_previous.mousePressEvent = self.label_previous
@@ -135,7 +136,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 class Register(QMainWindow, RegWindow.Ui_RegWindow):
 	def __init__(self):
 		super(self.__class__, self).__init__()
-		self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+		self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 		self.setupUi(self)
 		self.tableWidget.setSpan(0, 0, 1, 2)
 		self.btn_cancel.clicked.connect(self.close)

@@ -89,15 +89,13 @@ class SportCenter():
 	def save_account(self):
 		config = configparser.ConfigParser()
 		os.makedirs(path, exist_ok=True)
+		config.add_section('save')
+		config.add_section('account')
 		if 'conf.ini' not in os.listdir(path) or not self.save:
-			config.add_section('save')
-			config.add_section('account')
 			config['save']['on/off'] = '0'
 			config['account']['username'] = ''
 			config['account']['password'] = ''
 		else:
-			config.add_section('save')
-			config.add_section('account')
 			config['save']['on/off'] = '1'
 			config['account']['username'] = self.username
 			config['account']['password'] = self.password
