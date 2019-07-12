@@ -6881,7 +6881,7 @@
    <widget class="Line" name="vline">
     <property name="geometry">
      <rect>
-      <x>1400</x>
+      <x>1398</x>
       <y>40</y>
       <width>350</width>
       <height>16</height>
@@ -6931,6 +6931,31 @@
      <string>使用者：未登入</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="cb_savepass">
+    <property name="geometry">
+     <rect>
+      <x>1398</x>
+      <y>55</y>
+      <width>85</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft JhengHei</family>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>記住密碼</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+    <property name="autoRepeat">
+     <bool>false</bool>
+    </property>
+   </widget>
    <zorder>lbl_userstatus</zorder>
    <zorder>tableWidget</zorder>
    <zorder>lbl_previous</zorder>
@@ -6943,6 +6968,7 @@
    <zorder>btn_login</zorder>
    <zorder>vline</zorder>
    <zorder>lbl_loadingtime</zorder>
+   <zorder>cb_savepass</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

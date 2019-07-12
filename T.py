@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
 import MainWindow
+import RegWindow
 import sys
 import time
 import datetime
@@ -13,17 +14,27 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	"""
 	def __init__(self):
 		super(self.__class__, self).__init__()
+		# self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+		self.move(50, 50)
 		self.show()
 		self.setupUi(self)
 		self.lbl_refresh.mousePressEvent = self.refresh
 		self.lbl_next.mousePressEvent = self.label_next
 		self.lbl_previous.mousePressEvent = self.label_previous
 		self.tableWidget.cellDoubleClicked.connect(self.cell_on_click)
+		self.tableWidget_status.cellDoubleClicked.connect(self.status_update)
 		self.btn_login.clicked.connect(self.login)
+		self.tb_pass.returnPressed.connect(self.btn_login.click)
 
 		self.week = 0
 		self.selectedLink = ''
-		self.tableWidget_status.cellDoubleClicked.connect(self.status_update)
+		self.Reg = Register()
+
+		sc.load_account()
+		if sc.save:
+			self.cb_savepass.setChecked(True)
+			self.tb_user.setText(sc.username)
+			self.tb_pass.setText(sc.password)
 
 	def refresh(self, _, date=None):
 		sc.clickable = dict()
@@ -67,6 +78,8 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.refresh(_, date)
 
 	def label_previous(self, _):
+		if self.week == 0:
+			return
 		self.week -= 1
 		date = str(datetime.date.today() + datetime.timedelta(days=self.week * 7))
 		self.refresh(_, date)
@@ -76,9 +89,13 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		# self.tableWidget.item(row, col).setText('({}, {})'.format(row, col))
 		if sc.clickable.get((row, col)) is None:
 			return
+		elif not sc.is_login:
+			self.tb_user.setFocus()
+			return
 
 		self.selectedLink = sc.orderlink[(row, col)]
 		print(self.selectedLink)
+		self.reg()
 
 	def login(self):
 		username = self.tb_user.text()
@@ -89,11 +106,13 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			print('Username and password empty')
 			# Do something
 		print(username, password)
+		sc.save = self.cb_savepass.isChecked()
 		user = sc.login()
 		if user:
 			self.tb_user.hide()
 			self.tb_pass.hide()
 			self.btn_login.hide()
+			self.cb_savepass.hide()
 			self.lbl_userstatus.setText('{}'.format(user.upper()))
 			self.status_update()
 			# self.refresh(0)
@@ -103,11 +122,33 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	def status_update(self):
 		# print(row, col)
 		# self.tableWidget_status.item(row, col).setText('({}, {})'.format(row, col))
-		data = sc.status()
-		for row in range(1,20):
-			for col in range(0,5):
-				self.tableWidget_status.item(row, col).setText(data[row-1][col])
+		if sc.is_login:
+			data = sc.status()
+			for row in range(1,20):
+				for col in range(0,5):
+					self.tableWidget_status.item(row, col).setText(data[row-1][col])
 
+	def reg(self):
+		self.Reg.show()
+
+
+class Register(QMainWindow, RegWindow.Ui_RegWindow):
+	def __init__(self):
+		super(self.__class__, self).__init__()
+		self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+		self.setupUi(self)
+		self.tableWidget.setSpan(0, 0, 1, 2)
+		self.btn_cancel.clicked.connect(self.close)
+		self.btn_order.clicked.connect(self.order)
+
+		# just test
+
+		self.tableWidget.item(0,15)
+
+	def order(self):
+		pass
+		#link = MainWindow.selected_link
+		#sc.reg_order(link)
 
 
 if __name__ == "__main__":

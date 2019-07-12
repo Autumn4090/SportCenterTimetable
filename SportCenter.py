@@ -2,7 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import os
-import datetime
+import configparser
+
+path = 'C:/Users/' + os.getlogin() + '/Documents/Configuration'
+filename = 'conf.ini'
 
 
 class SportCenter():
@@ -14,6 +17,7 @@ class SportCenter():
 		self.username = str()
 		self.password = str()
 		self.is_login = False
+		self.save = False
 		self.orderlink = dict()
 		self.clickable = dict()
 		# a map for storeing the bookable cells
@@ -77,9 +81,38 @@ class SportCenter():
 		soup = BeautifulSoup(self.s.post(url_log, data).text, 'html.parser')
 		check = soup.find('span', id='ctl00_lblShow')
 		if check:
+			self.save_account()
 			self.is_login = True
 			return str(check)[67:-48]
 		return check
+
+	def save_account(self):
+		config = configparser.ConfigParser()
+		os.makedirs(path, exist_ok=True)
+		if 'conf.ini' not in os.listdir(path) or not self.save:
+			config.add_section('save')
+			config.add_section('account')
+			config['save']['on/off'] = '0'
+			config['account']['username'] = ''
+			config['account']['password'] = ''
+		else:
+			config.add_section('save')
+			config.add_section('account')
+			config['save']['on/off'] = '1'
+			config['account']['username'] = self.username
+			config['account']['password'] = self.password
+
+		with open(os.path.join(path, filename), 'w') as f:
+			config.write(f)
+
+	def load_account(self):
+		config = configparser.ConfigParser()
+		os.makedirs(path, exist_ok=True)
+		if 'conf.ini' in os.listdir(path):
+			config.read(os.path.join(path, filename))
+			self.save = config.getboolean('save', 'on/off')
+			self.username = config.get('account', 'username')
+			self.password = config.get('account', 'password')
 
 	def status(self):
 		url = self.root_url + '/facilities/PlaceMemberGrd.aspx'
