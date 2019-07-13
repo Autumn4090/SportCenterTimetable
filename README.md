@@ -9,12 +9,13 @@
 
 ## Library
 ```
+  BeautifulSoup4
   requests
   PyQt5
 ```
 
 ## To Do List
-* [ ]  **多線程界面刷新**
+* [X]  **多線程界面刷新**
 * [ ]  網絡狀態檢查
 * [ ]  預約場地
 * [ ]  **驗證碼**

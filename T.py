@@ -6,6 +6,7 @@ import sys
 import time
 import datetime
 from SportCenter import SportCenter
+from SportCenterThreads import GetTimeTableThread, LoginThread
 
 
 class Main(QMainWindow, MainWindow.Ui_MainWindow):
@@ -31,6 +32,15 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.selectedLink = ''
 		self.Reg = Register()
 
+		# Create Thread
+		self.get_timetable_thread = GetTimeTableThread(sc)
+		# Connect the signal to update table function
+		self.get_timetable_thread.sig.connect(self._thread_update_table_items)
+
+		self.login_thread = LoginThread(sc)
+		# Connect the signal to update table function
+		self.login_thread.sig.connect(self._after_login)
+
 		sc.load_account()
 		if sc.save:
 			self.cb_savepass.setChecked(True)
@@ -45,9 +55,9 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		if date is None:
 			self.week = 0
 			date = datetime.date.today()
-		data = sc.get_timetable(date)
-		self.update_table_items(self.tableWidget, data)
-		sc.status()
+
+		# Start the thread
+		self.get_timetable_thread.start(date)
 
 	def table_initialize(self):
 		for row in range(1, 15):
@@ -56,6 +66,9 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 				brush.setStyle(QtCore.Qt.NoBrush)
 				self.tableWidget.item(row, col).setForeground(brush)
 				self.tableWidget.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei', 8))
+
+	def _thread_update_table_items(self, data):
+		self.update_table_items(self.tableWidget, data)
 
 	def update_table_items(self, widget, data):
 		for runtime in range(1, 3):
@@ -108,7 +121,9 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			# Do something
 		print(username, password)
 		sc.save = self.cb_savepass.isChecked()
-		user = sc.login()
+		self.login_thread.start(username, password)
+
+	def _after_login(self, user):
 		if user:
 			self.tb_user.hide()
 			self.tb_pass.hide()
