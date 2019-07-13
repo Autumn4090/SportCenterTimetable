@@ -2,44 +2,39 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import os
+import configparser
 
-PATH_TO_AC = "C:\\Users\\Public\\Documents"
-FILENAME = "Roaming"
+path = 'C:/Users/' + os.getlogin() + '/Documents/Configuration'
+filename = 'conf.ini'
 
 
 class SportCenter():
-	"""
-		# Todo: Add login function (Done?)
-		# Todo: Add next week function (Done)
-		# Todo: Add register function
-	"""
-
 	def __init__(self):
 		self.s = requests.session()
 		self.s.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; \
 		x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36'})
 		self.root_url = 'http://info2.ntu.edu.tw'
-		self.orderlink = dict()
 		self.username = str()
 		self.password = str()
 		self.is_login = False
+		self.save = False
+		self.orderlink = dict()
 		self.clickable = dict()
 		# a map for storeing the bookable cells
 
-	def get_timetable(self, floor, date='2018/11/24'):
+	def get_timetable(self, date):
 		"""
 			placeSeq=1 -> 3F
 			placeSeq=2 -> 1F
 		"""
-		if floor == '3F':
-			url = self.root_url + '/facilities/PlaceGrd.aspx?nFlag=0&placeSeq={}&dateLst={}'.format(1, date)
-		else:
-			url = self.root_url + '/facilities/PlaceGrd.aspx?nFlag=0&placeSeq={}&dateLst={}'.format(2, date)
-		soup = BeautifulSoup(self.s.get(url).text, 'html.parser')
-		table = soup.find('table', id='ctl00_ContentPlaceHolder1_tab1')
+		table = list()
+		for floor in (2, 1):
+			url = self.root_url + '/facilities/PlaceGrd.aspx?nFlag=0&placeSeq={}&dateLst={}'.format(floor, date)
+			# soup = BeautifulSoup(self.s.get(url).text, 'html.parser')
+			table.append(self.parse_timetable(self.s.get(url).text, floor))
 		return table
 
-	def parse_timetable(self, timetable):
+	def parse_timetable(self, timetable, floor):
 		"""
 
 		"""
@@ -47,16 +42,21 @@ class SportCenter():
 		data = re.findall(td, str(timetable))
 		color_map = {}
 		i = 0
+		# print(data)
 		for row in range(0, 15):
 			for col in range(0, 8):
+				# print(data[i])
 				if data[i].startswith('<a'):
-					# print(data[i])
-					a = re.search('''14dot1b.gif"/?> ?\((\d{,3})\)<''', data[i]) #o
-					b = re.search('''actn010_2.gif"/?> ?\((\d{,3})\)<''', data[i]) #v
-					c = re.search('''#696969">(.*?)<''', data[i]) #現場訂位
+					a = re.search('''14dot1b.gif['"].*?/> ?\((\d{,3})\)<''', data[i]) #o
+					b = re.search('''actn010_2.gif['"].*?/> ?\((\d{,3})\)<''', data[i]) #v
+					c = re.search('''#696969['"]>(.*?)<''', data[i]) #現場訂位
 
 					if "預約" in data[i]:
-						d = re.search('''<img alt="預約" id="btnOrder" onclick="javascript:location.href='(.*?)'" ''', data[i])
+						d = re.search('''onclick=javascript:location.href='(.*?)'>''', data[i])
+						if floor == 2: # 1F
+							col = col * 2 - 1
+						else:
+							col *= 2
 						self.orderlink[(row, col)] = d[1].replace('&amp;', '&').replace('§', '&sect')
 						self.clickable[(row, col)] = True
 
@@ -69,103 +69,54 @@ class SportCenter():
 					elif b:
 						data[i] = '✓{}'.format(b[1])
 				i += 1
+		# print(data)
 		return data
 
 	def login(self):
 		data = {'user': self.username, 'pass': self.password, 'Submit': '登入'}
-		url_session = 'https://info2.ntu.edu.tw/facilities/SessionLogin.aspx'
+		url_session = 'https://info2.ntu.edu.tw/facilities/SessionLogin.aspx' # notice: https
 		self.s.get(url_session) # get COOKIES
 
 		url_log = 'https://web2.cc.ntu.edu.tw/p/s/login2/p1.php'
 		soup = BeautifulSoup(self.s.post(url_log, data).text, 'html.parser')
 		check = soup.find('span', id='ctl00_lblShow')
 		if check:
-			# self.store_account(PATH_TO_AC, FILENAME)
+			self.save_account()
 			self.is_login = True
 			return str(check)[67:-48]
 		return check
 
-	def store_account(self, path, filename):
-		# os.path.join(path, filename) is better than path + filename
-		with open(os.path.join(path, filename), 'w+') as f:
-			f.write('{},{}'.format(self.username, self.password))
-
-	def read_account(self, path, filename):
-		path_to_file = os.path.join(path, filename)
-		if os.path.isfile(path_to_file):
-			with open(path_to_file, 'r') as f:
-				line = f.readline().strip().split(',')
-				if len(line) == 1:
-					return False
-				self.username = line[0]
-				self.password = line[1]
-				if self.username == "" or self.password == "":
-					return False
-				return True
+	def save_account(self):
+		config = configparser.ConfigParser()
+		os.makedirs(path, exist_ok=True)
+		config.add_section('save')
+		config.add_section('account')
+		if 'conf.ini' not in os.listdir(path) or not self.save:
+			config['save']['on/off'] = '0'
+			config['account']['username'] = ''
+			config['account']['password'] = ''
 		else:
-			return False
+			config['save']['on/off'] = '1'
+			config['account']['username'] = self.username
+			config['account']['password'] = self.password
 
-	def auto_login(self):
-		if self.read_account(PATH_TO_AC, FILENAME):
-			return self.login()
-		else:
-			return False
+		with open(os.path.join(path, filename), 'w') as f:
+			config.write(f)
 
-	def reg_confirm(self, link):
-		url = self.root_url + '/facilities/' + link
-		print(url)
-		soup = BeautifulSoup(self.s.get(url).text, 'html.parser')
-		# table = soup.find('table', class_='table')
-		confirm = [soup.find('span', id='ctl00_ContentPlaceHolder1_lblbookSeq').string,
-				    soup.find('span', id='ctl00_ContentPlaceHolder1_lblplaceName').string,
-				    soup.find('span', class_='spanFrontMark').string,
-				    soup.find('span', id='ctl00_ContentPlaceHolder1_lblmemberName').string,
-					'', # 'ctl00_ContentPlaceHolder1_txtContactName'
-					'', # 'ctl00_ContentPlaceHolder1_txtContactTel'
-					'', # 'ctl00_ContentPlaceHolder1_txtFax'
-					'kw904@hotmail.com(搵細宏搞)', # 'ctl00_ContentPlaceHolder1_txtEmail'
-					soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayType').string,
-					'現金',
-					soup.find('span', id='ctl00_ContentPlaceHolder1_lblDate').string,
-					'{}:00 至 {}:00'.format(soup.find('input', id='ctl00_ContentPlaceHolder1_hidsTime')['value'],
-												soup.find('input', id='ctl00_ContentPlaceHolder1_hideTime')['value']),
-					soup.find('input', id='ctl00_ContentPlaceHolder1_txtPlaceNum')['value'],
-					re.search('(\$NT.*?\))', str(soup.find('span', id='ctl00_ContentPlaceHolder1_lblPayStand')))[0]]
-		return confirm
+	def load_account(self):
+		config = configparser.ConfigParser()
+		os.makedirs(path, exist_ok=True)
+		if 'conf.ini' in os.listdir(path):
+			config.read(os.path.join(path, filename))
+			self.save = config.getboolean('save', 'on/off')
+			self.username = config.get('account', 'username')
+			self.password = config.get('account', 'password')
 
-	def reg_order(self, link):
-		url = self.root_url + '/facilities/' + link
-		print(url)
-		soup = BeautifulSoup(self.s.get(url).text, 'html.parser')
-		table = soup.find('table', class_='table')
-		print(table)
+	def status(self):
+		url = self.root_url + '/facilities/PlaceMemberGrd.aspx'
 
-		data = {'__EVENTTARGET': '',
-				'__EVENTARGUMENT': '',
-				'__LASTFOCUS': '',
-				'__VIEWSTATE': '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',
-				'__VIEWSTATEGENERATOR': '2C8BDEE8',
-				'__EVENTVALIDATION': '/wEWNQKW/KWVBgKenYa6CgKmgrS6BwKVmaKuDQLe9cW6DwLUnp3xAQKEhLO8BAKIv9+QCQKljKvkAQKpxZmADQKxqrPuAQK+qrPuAQKmqvPtAQKmqv/tAQKmqvvtAQKmqsftAQKmqsPtAQKmqs/tAQKmqsvtAQKmqtftAQKmqpPuAQKmqp/uAQKnqvPtAQKnqv/tAQKnqvvtAQK21/qxAwKhuNDfDwK5uJDcDwK5uJzcDwK5uJjcDwK5uKTcDwK5uKDcDwK5uKzcDwK5uKjcDwK5uLTcDwK5uPDfDwK5uPzfDwK4uJDcDwK4uJzcDwK4uJjcDwKSuJrlCwKT5+K1CAKG1qD0CQLj5c6uCgKEjN68DwKG7uXsBwLK/oeMDgKn6vbGBgKw7sSTBwL50tb0CQL50v6CCgLqqKuOCQKcjYHXDcTN1Ek8LP7ZjTwY2wCxhS2PIrZx',
+		# 預約編號 (預約日期) (預約時段) (預約場地) 方式 (金額) 收據編號 (狀態)
+		td = re.compile('''</td><td>.*</td><td>(.*)</td><td>(.*)</td><td>(.*)            </td><td>.*      </td><td>(.*)</td><td>.*            </td><td>(.*)</td><td><input ''')
+		data = re.findall(td, self.s.get(url).text)
+		return data[0:19]
 
-				'ctl00$ContentPlaceHolder1$txtContactName': '',
-				'ctl00$ContentPlaceHolder1$txtContactTel': '',
-				'ctl00$ContentPlaceHolder1$txtFax': '',
-				'ctl00$ContentPlaceHolder1$txtEmail': 'kw904@hotmail.com',
-				'ctl00$ContentPlaceHolder1$DropLstPayMethod': '現金',
-				'ctl00$ContentPlaceHolder1$txtpayHourNum': '',
-				'ctl00$ContentPlaceHolder1$DropLstTimeStart': soup.find('input', id='ctl00_ContentPlaceHolder1_hidsTime')['value'],
-				'ctl00$ContentPlaceHolder1$DropLstTimeEnd': soup.find('input', id='ctl00_ContentPlaceHolder1_hideTime')['value'],
-				'ctl00$ContentPlaceHolder1$txtPlaceNum': '1',
-				'ctl00$ContentPlaceHolder1$btnOrder': '送出預約',
-				'ctl00$ContentPlaceHolder1$hidbookDate': soup.find('input', id='ctl00_ContentPlaceHolder1_hidbookDate')['value'],
-				'ctl00$ContentPlaceHolder1$hidmemberId': soup.find('input', id='ctl00_ContentPlaceHolder1_hidmemberId')['value'],
-				'ctl00$ContentPlaceHolder1$hidplaceSeq': soup.find('input', id='ctl00_ContentPlaceHolder1_hidplaceSeq')['value'],
-				'ctl00$ContentPlaceHolder1$hidpayPrice': soup.find('input', id='ctl00_ContentPlaceHolder1_hidpayPrice')['value'],
-				'ctl00$ContentPlaceHolder1$hidpeekCharge': soup.find('input', id='ctl00_ContentPlaceHolder1_hidpeekCharge')['value'],
-				'ctl00$ContentPlaceHolder1$hidoffCharge': soup.find('input', id='ctl00_ContentPlaceHolder1_hidoffCharge')['value'],
-				'ctl00$ContentPlaceHolder1$hidsTime': soup.find('input', id='ctl00_ContentPlaceHolder1_hidsTime')['value'],
-				'ctl00$ContentPlaceHolder1$hideTime': soup.find('input', id='ctl00_ContentPlaceHolder1_hideTime')['value'],
-				'ctl00$ContentPlaceHolder1$hidWeek': soup.find('input', id='ctl00_ContentPlaceHolder1_hidWeek')['value'],
-				'ctl00$ContentPlaceHolder1$hiddateLst': soup.find('input', id='ctl00_ContentPlaceHolder1_hiddateLst')['value']}
-		self.s.post(url, data=data)
-		# Todo: Check if registered succesfully

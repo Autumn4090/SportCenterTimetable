@@ -1,5 +1,4 @@
-# NTUSportCenter
-台大綜合體育館羽毛球場地預約系統
+# NTUHKMSA - SportCenter
 
 
 ## Environment
@@ -11,18 +10,22 @@
 ## Library
 ```
   requests
-  BeautifulSoup
   PyQt5
 ```
 
 ## To Do List
-* [ ]  查詢已預約場地
+* [ ]  **多線程界面刷新**
+* [ ]  網絡狀態檢查
+* [ ]  預約場地
+* [ ]  **驗證碼**
 * [ ]  取消預約
-* [ ]  一次預約多個場地
-* [ ]  合併場地顯示
-* [ ]  登出/取消自動登錄
 * [ ]  定時刷新
 * [ ]  自動預約
+* [x]  基本查詢
+* [x]  合併場地顯示
+* [x]  登錄
+* [x]  記住帳號
+* [x]  查詢預約
 
 
 ## Acknowledgement
