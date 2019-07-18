@@ -15,10 +15,13 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	"""
 	def __init__(self):
 		super(self.__class__, self).__init__()
-		self.move(50, 50)
-		self.setWindowIcon(QtGui.QIcon('Gui/dev.png'))
-		self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
 		self.setupUi(self)
+		self.setWindowIcon(QtGui.QIcon('Gui/dev.ico'))
+		self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
+
+		size = self.geometry()
+		screen = QDesktopWidget().screenGeometry()
+		self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 		self.show()
 		self.lbl_refresh.mousePressEvent = self.refresh
 		self.lbl_next.mousePressEvent = self.label_next
@@ -151,8 +154,13 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 class Register(QMainWindow, RegWindow.Ui_RegWindow):
 	def __init__(self):
 		super(self.__class__, self).__init__()
-		self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 		self.setupUi(self)
+		self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+
+		size = self.geometry()
+		screen = QDesktopWidget().screenGeometry()
+		self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
+
 		self.tableWidget.setSpan(0, 0, 1, 2)
 		self.btn_cancel.clicked.connect(self.close)
 		self.btn_order.clicked.connect(self.order)
