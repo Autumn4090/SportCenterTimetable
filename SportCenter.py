@@ -13,7 +13,7 @@ class SportCenter():
 		self.s = requests.session()
 		self.s.headers.update({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; \
 		x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36'})
-		self.root_url = 'http://info2.ntu.edu.tw'
+		self.root_url = 'http://ntupesc.ntu.edu.tw'
 		self.username = str()
 		self.password = str()
 		self.is_login = False
@@ -74,7 +74,7 @@ class SportCenter():
 
 	def login(self):
 		data = {'user': self.username, 'pass': self.password, 'Submit': '登入'}
-		url_session = 'https://info2.ntu.edu.tw/facilities/SessionLogin.aspx' # notice: https
+		url_session = 'https://ntupesc.ntu.edu.tw/facilities/SessionLogin.aspx' # notice: https
 		self.s.get(url_session) # get COOKIES
 
 		url_log = 'https://web2.cc.ntu.edu.tw/p/s/login2/p1.php'
@@ -120,3 +120,78 @@ class SportCenter():
 		data = re.findall(td, self.s.get(url).text)
 		return data[0:19]
 
+	def reg_details(self, link):
+		url = self.root_url + '/facilities/' + link
+		print(url)
+
+		web = self.s.get(url).text
+		details = [re.search('''lblbookSeq.*>(.*?)<''', web)[1],
+				   re.search('''lblplaceName.*>(.*?)            <''', web)[1],
+				   re.search('''spanFrontMark['"]>(.*?)<''', web)[1],
+				   re.search('''lblmemberName.*>(.*?)<''', web)[1],
+				   '',
+				   '',
+				   '',
+				   '{}@ntu.edu.tw'.format(self.username),
+				   re.search('''lblPayType.*>(.*?)<''', web)[1],
+				   '現金',
+				   re.search('''lblDate.*>(.*?)<''', web)[1],
+				   '{}:00 至 {}:00'.format(re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
+										  re.search('''hideTime.*['"](\d{1,2})''', web)[1]),
+				   re.search('''txtPlaceNum.*['"](\d{1,})''', web)[1],
+				   re.search('''lblPayStand.*>(\$NT\d{,3})''', web)[1]]
+
+		self.formdata = {'VIEWSTATE':        re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
+						 'EVENTVALIDATION' : re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
+						 'TimeStart':     re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
+						 'TimeEnd':       re.search('''hideTime.*['"](\d{1,2})''', web)[1],
+						 'hidbookDate':   re.search('''hidbookDate.*value=['"](.*?)['"]''', web)[1],
+						 'hidpayPrice':   re.search('''hidpayPrice.*value=['"](.*?)['"]''', web)[1],
+						 'hidpeekCharge': re.search('''hidpeekCharge.*value=['"](.*?)['"]''', web)[1],
+						 'hidoffCharge':  re.search('''hidoffCharge.*value=['"](.*?)['"]''', web)[1],
+						 'hidWeek':       re.search('''hidWeek.*value=['"](.*?)['"]''', web)[1],
+						 'hiddateLst':    re.search('''hiddateLst.*value=['"](.*?)['"]''', web)[1]}
+
+		return details
+
+	def get_captcha(self):
+		url = self.root_url + '/facilities/ValidateCode.aspx?ImgID=Login'
+		rec = self.s.get(url).content
+		return rec
+
+	def reg_order(self, link, code):
+		url = self.root_url + '/facilities/' + link
+
+		data = {'__EVENTTARGET': '',
+				'__EVENTARGUMENT': '',
+				'__LASTFOCUS': '',
+				'__VIEWSTATE': self.formdata['VIEWSTATE'],
+				'__EVENTVALIDATION': self.formdata['EVENTVALIDATION'],
+
+				'ctl00$ContentPlaceHolder1$txtContactName': '',
+				'ctl00$ContentPlaceHolder1$txtContactTel': '',
+				'ctl00$ContentPlaceHolder1$txtFax': '',
+				'ctl00$ContentPlaceHolder1$txtEmail': '{}@ntu.edu.tw'.format(self.username),
+				'ctl00$ContentPlaceHolder1$DropLstPayMethod': '現金',
+				'ctl00$ContentPlaceHolder1$txtpayHourNum': '',
+				'ctl00$ContentPlaceHolder1$DropLstTimeStart': self.formdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$DropLstTimeEnd': self.formdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$txtPlaceNum': '1',
+				'ctl00$ContentPlaceHolder1$txtValidateCode': '{}'.format(code),
+				'ctl00$ContentPlaceHolder1$btnOrder': '送出預約',
+				'ctl00$ContentPlaceHolder1$hidbookDate': self.formdata['hidbookDate'], #
+				'ctl00$ContentPlaceHolder1$hidmemberId': '{}'.format(self.username),
+				'ctl00$ContentPlaceHolder1$hidplaceSeq': '1',
+				'ctl00$ContentPlaceHolder1$hidpayPrice': self.formdata['hidpayPrice'], #
+				'ctl00$ContentPlaceHolder1$hidpeekCharge': self.formdata['hidpeekCharge'], #
+				'ctl00$ContentPlaceHolder1$hidoffCharge': self.formdata['hidoffCharge'], #
+				'ctl00$ContentPlaceHolder1$hidsTime': self.formdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$hideTime': self.formdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$hidWeek': self.formdata['hidWeek'],
+				'ctl00$ContentPlaceHolder1$hiddateLst': self.formdata['hiddateLst']}
+
+		print(data)
+		result = self.s.post(url, data=data)
+		print(result.text)
+		if '成功' in result.text:
+			print('成功')
