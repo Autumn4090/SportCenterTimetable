@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDesktopWidget, QLabel, QLineEdit
 import MainWindow
 import RegWindow
 import sys
@@ -15,10 +15,13 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	"""
 	def __init__(self):
 		super(self.__class__, self).__init__()
-		self.move(50, 50)
-		self.setWindowIcon(QtGui.QIcon('Gui/dev.png'))
-		self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
 		self.setupUi(self)
+		self.setWindowIcon(QtGui.QIcon('Gui/dev.ico'))
+		self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
+
+		size = self.geometry()
+		screen = QDesktopWidget().screenGeometry()
+		self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 		self.show()
 		self.lbl_refresh.mousePressEvent = self.refresh
 		self.lbl_next.mousePressEvent = self.label_next
@@ -108,7 +111,17 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			return
 
 		self.selectedLink = sc.orderlink[(row, col)]
-		print(self.selectedLink)
+		details = sc.reg_details(self.selectedLink)
+		for row in range(1, 15):
+			self.Reg.tableWidget.item(row, 1).setText(details[row-1])
+
+		img = QtGui.QImage()
+		assert img.loadFromData(sc.get_captcha())
+		recap = QLabel()
+		recap.setAlignment(QtCore.Qt.AlignCenter)
+		recap.setPixmap(QtGui.QPixmap().fromImage(img))
+		self.Reg.tableWidget.setCellWidget(15, 0, recap)
+
 		self.reg()
 
 	def login(self):
@@ -151,20 +164,29 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 class Register(QMainWindow, RegWindow.Ui_RegWindow):
 	def __init__(self):
 		super(self.__class__, self).__init__()
-		self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
 		self.setupUi(self)
+		self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+
+		size = self.geometry()
+		screen = QDesktopWidget().screenGeometry()
+		self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
+
 		self.tableWidget.setSpan(0, 0, 1, 2)
 		self.btn_cancel.clicked.connect(self.close)
 		self.btn_order.clicked.connect(self.order)
 
+		self.res = QLineEdit()
+		self.res.setText('')
+		self.res.setAlignment(QtCore.Qt.AlignCenter)
+		self.tableWidget.setCellWidget(15, 1, self.res)
 		# just test
 
 		self.tableWidget.item(0,15)
 
 	def order(self):
-		pass
-		#link = MainWindow.selected_link
-		#sc.reg_order(link)
+		link = MainWindow.selectedLink
+		validateCode = self.res.text()
+		# sc.reg_order(link, validateCode)
 
 
 if __name__ == "__main__":
