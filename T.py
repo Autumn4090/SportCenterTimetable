@@ -8,6 +8,9 @@ import datetime
 from SportCenter import SportCenter
 from SportCenterThreads import GetTimeTableThread, LoginThread
 
+import cgitb
+cgitb.enable(format='text') # Avoid crashing
+
 
 class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	"""
@@ -115,13 +118,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		for row in range(1, 15):
 			self.Reg.tableWidget.item(row, 1).setText(details[row-1])
 
-		img = QtGui.QImage()
-		assert img.loadFromData(sc.get_captcha())
-		recap = QLabel()
-		recap.setAlignment(QtCore.Qt.AlignCenter)
-		recap.setPixmap(QtGui.QPixmap().fromImage(img))
-		self.Reg.tableWidget.setCellWidget(15, 0, recap)
-
+		self.Reg.valid_update(sc.get_captcha())
 		self.reg()
 
 	def login(self):
@@ -172,21 +169,35 @@ class Register(QMainWindow, RegWindow.Ui_RegWindow):
 		self.move((screen.width() - size.width()) / 2, (screen.height() - size.height()) / 2)
 
 		self.tableWidget.setSpan(0, 0, 1, 2)
+		self.tableWidget.cellClicked.connect(self._valid)
 		self.btn_cancel.clicked.connect(self.close)
 		self.btn_order.clicked.connect(self.order)
 
-		self.res = QLineEdit()
-		self.res.setText('')
-		self.res.setAlignment(QtCore.Qt.AlignCenter)
-		self.tableWidget.setCellWidget(15, 1, self.res)
-		# just test
+	def _valid(self, row, col):
+		if (row, col) == (15, 0):
+			self.valid_update(sc.get_captcha())
 
-		self.tableWidget.item(0,15)
+	def valid_update(self, code):
+		# Captcha image
+		captcha = QtGui.QImage()
+		assert captcha.loadFromData(code)
+		self.capImg = QLabel()
+		self.capImg.setAlignment(QtCore.Qt.AlignCenter)
+		self.capImg.setPixmap(QtGui.QPixmap().fromImage(captcha))
+		self.tableWidget.setCellWidget(15, 0, self.capImg)
+
+		# InputBox
+		self.capBox = QLineEdit()
+		self.capBox.setText('')
+		self.capBox.setAlignment(QtCore.Qt.AlignCenter)
+		self.tableWidget.setCellWidget(15, 1, self.capBox)
 
 	def order(self):
 		link = MainWindow.selectedLink
-		validateCode = self.res.text()
+		validateCode = self.capBox.text()
+		print(validateCode)
 		# sc.reg_order(link, validateCode)
+		self.close()
 
 
 if __name__ == "__main__":
