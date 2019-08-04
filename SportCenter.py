@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import os
 import configparser
+import time
 
 path = 'C:/Users/' + os.getlogin() + '/Documents/Configuration'
 filename = 'conf.ini'
@@ -18,9 +19,26 @@ class SportCenter():
 		self.password = str()
 		self.is_login = False
 		self.save = False
-		self.orderlink = dict()
-		self.clickable = dict()
+		self.regLink = dict()
+		self.regClickable = dict()
 		# a map for storeing the bookable cells
+		self.resLink = dict()
+		self.resClickable = dict()
+
+	def heartbeat(self):
+		url = self.root_url + '/facilities/'
+		while not self.is_login:
+			time.sleep(1)
+
+		while self.is_login:
+			try:
+				self.s.head(url)
+				print('心跳...')
+				time.sleep(300)
+			except requests.ConnectionError:
+				print('請檢查網絡狀態')
+			except:
+				print('請聯系開發者')
 
 	def get_timetable(self, date):
 		"""
@@ -57,8 +75,8 @@ class SportCenter():
 							col = col * 2 - 1
 						else:
 							col *= 2
-						self.orderlink[(row, col)] = d[1].replace('&amp;', '&').replace('§', '&sect')
-						self.clickable[(row, col)] = True
+						self.regLink[(row, col)] = d[1].replace('&amp;', '&').replace('§', '&sect')
+						self.regClickable[(row, col)] = True
 
 					if a and b:
 						data[i] = 'ｏ{} ✓{}'.format(a[1], b[1])
@@ -116,9 +134,17 @@ class SportCenter():
 		url = self.root_url + '/facilities/PlaceMemberGrd.aspx'
 
 		# 預約編號 (預約日期) (預約時段) (預約場地) 方式 (金額) 收據編號 (狀態)
-		td = re.compile('''</td><td>.*</td><td>(.*)</td><td>(.*)</td><td>(.*)            </td><td>.*      </td><td>(.*)</td><td>.*            </td><td>(.*)</td><td><input ''')
+		td = re.compile('''</td><td>(.*)</td><td>(.*)</td><td>(.*)</td><td>(.*)            </td><td>.*      </td><td>(.*)</td><td>.*            </td><td>(.*)</td><td><input ''')
 		data = re.findall(td, self.s.get(url).text)
-		return data[0:19]
+		data.insert(0, ['' for k in range(6)])
+
+		for row in range(len(data)):
+			col = 4
+			if "預約" in data[row][5]:
+				self.resLink[(row, col)] = data[row][0]
+				self.resClickable[(row, col)] = True
+				# print(self.resLink, self.resClickable)
+		return data[0:20]
 
 	def reg_details(self, link):
 		url = self.root_url + '/facilities/' + link
@@ -141,7 +167,7 @@ class SportCenter():
 				   re.search('''txtPlaceNum.*['"](\d{1,})''', web)[1],
 				   re.search('''lblPayStand.*>(\$NT\d{,3})''', web)[1]]
 
-		self.formdata = {'VIEWSTATE':       re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
+		self.regformdata = {'VIEWSTATE':       re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
 						 'EVENTVALIDATION': re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
 						 'TimeStart':     re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
 						 'TimeEnd':       re.search('''hideTime.*['"](\d{1,2})''', web)[1],
@@ -154,19 +180,14 @@ class SportCenter():
 
 		return details
 
-	def get_captcha(self):
-		url = self.root_url + '/facilities/ValidateCode.aspx?ImgID=Login'
-		rec = self.s.get(url).content
-		return rec
-
-	def reg_order(self, link, code):
+	def reg_post(self, link, code):
 		url = self.root_url + '/facilities/' + link
 
 		data = {'__EVENTTARGET':     '',
 				'__EVENTARGUMENT':   '',
 				'__LASTFOCUS':       '',
-				'__VIEWSTATE':       self.formdata['VIEWSTATE'],
-				'__EVENTVALIDATION': self.formdata['EVENTVALIDATION'],
+				'__VIEWSTATE':       self.regformdata['VIEWSTATE'],
+				'__EVENTVALIDATION': self.regformdata['EVENTVALIDATION'],
 
 				'ctl00$ContentPlaceHolder1$txtContactName':   '',
 				'ctl00$ContentPlaceHolder1$txtContactTel':    '',
@@ -174,24 +195,56 @@ class SportCenter():
 				'ctl00$ContentPlaceHolder1$txtEmail':         '{}@ntu.edu.tw'.format(self.username),
 				'ctl00$ContentPlaceHolder1$DropLstPayMethod': '現金',
 				'ctl00$ContentPlaceHolder1$txtpayHourNum':    '',
-				'ctl00$ContentPlaceHolder1$DropLstTimeStart': self.formdata['TimeStart'], #
-				'ctl00$ContentPlaceHolder1$DropLstTimeEnd':   self.formdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$DropLstTimeStart': self.regformdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$DropLstTimeEnd':   self.regformdata['TimeEnd'], #
 				'ctl00$ContentPlaceHolder1$txtPlaceNum':      '1',
 				'ctl00$ContentPlaceHolder1$txtValidateCode':  '{}'.format(code),
 				'ctl00$ContentPlaceHolder1$btnOrder':         '送出預約',
-				'ctl00$ContentPlaceHolder1$hidbookDate':      self.formdata['hidbookDate'], #
+				'ctl00$ContentPlaceHolder1$hidbookDate':      self.regformdata['hidbookDate'], #
 				'ctl00$ContentPlaceHolder1$hidmemberId':      '{}'.format(self.username),
 				'ctl00$ContentPlaceHolder1$hidplaceSeq':      '1',
-				'ctl00$ContentPlaceHolder1$hidpayPrice':      self.formdata['hidpayPrice'], #
-				'ctl00$ContentPlaceHolder1$hidpeekCharge':    self.formdata['hidpeekCharge'], #
-				'ctl00$ContentPlaceHolder1$hidoffCharge':     self.formdata['hidoffCharge'], #
-				'ctl00$ContentPlaceHolder1$hidsTime':         self.formdata['TimeStart'], #
-				'ctl00$ContentPlaceHolder1$hideTime':         self.formdata['TimeEnd'], #
-				'ctl00$ContentPlaceHolder1$hidWeek':          self.formdata['hidWeek'],
-				'ctl00$ContentPlaceHolder1$hiddateLst':       self.formdata['hiddateLst']}
+				'ctl00$ContentPlaceHolder1$hidpayPrice':      self.regformdata['hidpayPrice'], #
+				'ctl00$ContentPlaceHolder1$hidpeekCharge':    self.regformdata['hidpeekCharge'], #
+				'ctl00$ContentPlaceHolder1$hidoffCharge':     self.regformdata['hidoffCharge'], #
+				'ctl00$ContentPlaceHolder1$hidsTime':         self.regformdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$hideTime':         self.regformdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$hidWeek':          self.regformdata['hidWeek'],
+				'ctl00$ContentPlaceHolder1$hiddateLst':       self.regformdata['hiddateLst']}
 
 		print(data)
 		result = self.s.post(url, data=data)
 		print(result.text)
 		if '成功' in result.text:
 			print('成功')
+
+	def get_captcha(self):
+		url = self.root_url + '/facilities/ValidateCode.aspx?ImgID=Login'
+		rec = self.s.get(url).content
+		return rec
+
+	def res_details(self, num):
+		url = self.root_url + '/facilities/PlaceOrderMemLst.aspx?bookSeq=' + num
+		web = self.s.get(url).text
+		self.resformdata = {'VIEWSTATE':       re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
+							'EVENTVALIDATION': re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
+							'hidfldmemberId': re.search('''hidfldmemberId.*value=['"](.*?)['"]''', web)[1],
+							'hidfldpoints':   re.search('''hidfldpoints.*value=['"](.*?)['"]''', web)[1],
+							'hidfldplaceSeq': re.search('''hidfldplaceSeq.*value=['"](.*?)['"]''', web)[1]}
+		print(self.resformdata)
+
+	def res_post(self, num):
+		url = self.root_url + '/facilities/PlaceOrderMemLst.aspx?bookSeq=' + num
+		# self.res_details()
+
+		data = {'__EVENTTARGET':     '',
+				'__EVENTARGUMENT':   '',
+				'__VIEWSTATE':       self.resformdata['VIEWSTATE'],
+				'__EVENTVALIDATION': self.resformdata['EVENTVALIDATION'],
+
+				'ctl00$ContentPlaceHolder1$hidfldmemberId': self.resformdata['hidfldmemberId'],
+				'ctl00$ContentPlaceHolder1$hidfldpoints':   self.resformdata['hidfldpoints'],
+				'ctl00$ContentPlaceHolder1$hidfldplaceSeq': self.resformdata['hidfldplaceSeq'],
+				'ctl00$ContentPlaceHolder1$btnCancelOrder': '取消預約'}
+
+		result = self.s.post(url, data=data)
+		print(result.text)
