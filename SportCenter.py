@@ -20,6 +20,7 @@ class SportCenter():
 		self.save = False
 		self.orderlink = dict()
 		self.clickable = dict()
+		self.formdata = dict()
 		# a map for storeing the bookable cells
 
 	def get_timetable(self, date):
@@ -141,16 +142,16 @@ class SportCenter():
 				   re.search('''txtPlaceNum.*['"](\d{1,})''', web)[1],
 				   re.search('''lblPayStand.*>(\$NT\d{,3})''', web)[1]]
 
-		self.formdata = {'VIEWSTATE':        re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
-						 'EVENTVALIDATION' : re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
-						 'TimeStart':     re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
-						 'TimeEnd':       re.search('''hideTime.*['"](\d{1,2})''', web)[1],
-						 'hidbookDate':   re.search('''hidbookDate.*value=['"](.*?)['"]''', web)[1],
-						 'hidpayPrice':   re.search('''hidpayPrice.*value=['"](.*?)['"]''', web)[1],
-						 'hidpeekCharge': re.search('''hidpeekCharge.*value=['"](.*?)['"]''', web)[1],
-						 'hidoffCharge':  re.search('''hidoffCharge.*value=['"](.*?)['"]''', web)[1],
-						 'hidWeek':       re.search('''hidWeek.*value=['"](.*?)['"]''', web)[1],
-						 'hiddateLst':    re.search('''hiddateLst.*value=['"](.*?)['"]''', web)[1]}
+		self.formdata = {'VIEWSTATE'		:re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
+						 'EVENTVALIDATION'	:re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
+						 'TimeStart'		:re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
+						 'TimeEnd'			:re.search('''hideTime.*['"](\d{1,2})''', web)[1],
+						 'hidbookDate'		:re.search('''hidbookDate.*value=['"](.*?)['"]''', web)[1],
+						 'hidpayPrice'		:re.search('''hidpayPrice.*value=['"](.*?)['"]''', web)[1],
+						 'hidpeekCharge'	:re.search('''hidpeekCharge.*value=['"](.*?)['"]''', web)[1],
+						 'hidoffCharge'		:re.search('''hidoffCharge.*value=['"](.*?)['"]''', web)[1],
+						 'hidWeek'			:re.search('''hidWeek.*value=['"](.*?)['"]''', web)[1],
+						 'hiddateLst'		:re.search('''hiddateLst.*value=['"](.*?)['"]''', web)[1]}
 
 		return details
 
@@ -162,33 +163,33 @@ class SportCenter():
 	def reg_order(self, link, code):
 		url = self.root_url + '/facilities/' + link
 
-		data = {'__EVENTTARGET': '',
-				'__EVENTARGUMENT': '',
-				'__LASTFOCUS': '',
-				'__VIEWSTATE': self.formdata['VIEWSTATE'],
-				'__EVENTVALIDATION': self.formdata['EVENTVALIDATION'],
+		data = {'__EVENTTARGET'									: '',
+				'__EVENTARGUMENT'								: '',
+				'__LASTFOCUS'									: '',
+				'__VIEWSTATE'									: self.formdata['VIEWSTATE'],
+				'__EVENTVALIDATION'								: self.formdata['EVENTVALIDATION'],
 
-				'ctl00$ContentPlaceHolder1$txtContactName': '',
-				'ctl00$ContentPlaceHolder1$txtContactTel': '',
-				'ctl00$ContentPlaceHolder1$txtFax': '',
-				'ctl00$ContentPlaceHolder1$txtEmail': '{}@ntu.edu.tw'.format(self.username),
-				'ctl00$ContentPlaceHolder1$DropLstPayMethod': '現金',
-				'ctl00$ContentPlaceHolder1$txtpayHourNum': '',
-				'ctl00$ContentPlaceHolder1$DropLstTimeStart': self.formdata['TimeStart'], #
-				'ctl00$ContentPlaceHolder1$DropLstTimeEnd': self.formdata['TimeEnd'], #
-				'ctl00$ContentPlaceHolder1$txtPlaceNum': '1',
-				'ctl00$ContentPlaceHolder1$txtValidateCode': '{}'.format(code),
-				'ctl00$ContentPlaceHolder1$btnOrder': '送出預約',
-				'ctl00$ContentPlaceHolder1$hidbookDate': self.formdata['hidbookDate'], #
-				'ctl00$ContentPlaceHolder1$hidmemberId': '{}'.format(self.username),
-				'ctl00$ContentPlaceHolder1$hidplaceSeq': '1',
-				'ctl00$ContentPlaceHolder1$hidpayPrice': self.formdata['hidpayPrice'], #
-				'ctl00$ContentPlaceHolder1$hidpeekCharge': self.formdata['hidpeekCharge'], #
-				'ctl00$ContentPlaceHolder1$hidoffCharge': self.formdata['hidoffCharge'], #
-				'ctl00$ContentPlaceHolder1$hidsTime': self.formdata['TimeStart'], #
-				'ctl00$ContentPlaceHolder1$hideTime': self.formdata['TimeEnd'], #
-				'ctl00$ContentPlaceHolder1$hidWeek': self.formdata['hidWeek'],
-				'ctl00$ContentPlaceHolder1$hiddateLst': self.formdata['hiddateLst']}
+				'ctl00$ContentPlaceHolder1$txtContactName'		: '',
+				'ctl00$ContentPlaceHolder1$txtContactTel'		: '',
+				'ctl00$ContentPlaceHolder1$txtFax'				: '',
+				'ctl00$ContentPlaceHolder1$txtEmail'			: '{}@ntu.edu.tw'.format(self.username),
+				'ctl00$ContentPlaceHolder1$DropLstPayMethod'	: '現金',
+				'ctl00$ContentPlaceHolder1$txtpayHourNum'		: '',
+				'ctl00$ContentPlaceHolder1$DropLstTimeStart'	: self.formdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$DropLstTimeEnd'		: self.formdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$txtPlaceNum'			: '1',
+				'ctl00$ContentPlaceHolder1$txtValidateCode'		: '{}'.format(code),
+				'ctl00$ContentPlaceHolder1$btnOrder'			: '送出預約',
+				'ctl00$ContentPlaceHolder1$hidbookDate'			: self.formdata['hidbookDate'], #
+				'ctl00$ContentPlaceHolder1$hidmemberId'			: '{}'.format(self.username),
+				'ctl00$ContentPlaceHolder1$hidplaceSeq'			: '1',
+				'ctl00$ContentPlaceHolder1$hidpayPrice'			: self.formdata['hidpayPrice'], #
+				'ctl00$ContentPlaceHolder1$hidpeekCharge'		: self.formdata['hidpeekCharge'], #
+				'ctl00$ContentPlaceHolder1$hidoffCharge'		: self.formdata['hidoffCharge'], #
+				'ctl00$ContentPlaceHolder1$hidsTime'			: self.formdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$hideTime'			: self.formdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$hidWeek'				: self.formdata['hidWeek'],
+				'ctl00$ContentPlaceHolder1$hiddateLst'			: self.formdata['hiddateLst']}
 
 		print(data)
 		result = self.s.post(url, data=data)

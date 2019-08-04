@@ -33,7 +33,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 
 		self.week = 0
 		self.selectedLink = ''
-		self.Reg = Register()
+		self.RegWindow = Register()
 
 		# Create Thread
 		self.get_timetable_thread = GetTimeTableThread(sc)
@@ -113,16 +113,16 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.selectedLink = sc.orderlink[(row, col)]
 		details = sc.reg_details(self.selectedLink)
 		for row in range(1, 15):
-			self.Reg.tableWidget.item(row, 1).setText(details[row-1])
+			self.RegWindow.tableWidget.item(row, 1).setText(details[row-1])
 
 		img = QtGui.QImage()
 		assert img.loadFromData(sc.get_captcha())
 		recap = QLabel()
 		recap.setAlignment(QtCore.Qt.AlignCenter)
 		recap.setPixmap(QtGui.QPixmap().fromImage(img))
-		self.Reg.tableWidget.setCellWidget(15, 0, recap)
+		self.RegWindow.tableWidget.setCellWidget(15, 0, recap)
 
-		self.reg()
+		self.show_reg()
 
 	def login(self):
 		username = self.tb_user.text()
@@ -134,7 +134,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			# Do something
 		print(username, password)
 		sc.save = self.cb_savepass.isChecked()
-		self.login_thread.start(username, password)
+		self.login_thread.start()
 
 	def _after_login(self, user):
 		if user:
@@ -144,7 +144,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			self.cb_savepass.hide()
 			self.lbl_userstatus.setText('{}'.format(user.upper()))
 			self.status_update()
-			# self.refresh(0)
+			self.refresh('')
 		else:
 			print('登入失敗')
 
@@ -157,8 +157,8 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 				for col in range(0,5):
 					self.tableWidget_status.item(row, col).setText(data[row-1][col])
 
-	def reg(self):
-		self.Reg.show()
+	def show_reg(self):
+		self.RegWindow.show()
 
 
 class Register(QMainWindow, RegWindow.Ui_RegWindow):
