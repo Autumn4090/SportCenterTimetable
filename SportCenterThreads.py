@@ -41,6 +41,4 @@ class LoginThread(QThread):
 
     def run(self):
         tmp = self.sc.login()
-
-
         self.sig.emit(tmp)

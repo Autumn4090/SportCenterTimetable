@@ -31,14 +31,15 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.lbl_next.mousePressEvent = self.label_next
 		self.lbl_previous.mousePressEvent = self.label_previous
 		self.tableWidget.cellDoubleClicked.connect(self.cell_on_click)
-		self.tableWidget_status.cellDoubleClicked.connect(self.resign)
-		self.tableWidget_status.cellDoubleClicked.connect(self.status_update)
+		self.tableWidget_status.cellDoubleClicked.connect(self.show_resign_confirm)
+		self.selected_cell = tuple()
+
 		self.btn_login.clicked.connect(self.login)
 		self.tb_pass.returnPressed.connect(self.btn_login.click)
 
 		self.week = 0
 		self.selectedLink = ''
-		self.RegWindow = Register()
+		self.Reg = Register()
 
 		# Create Thread
 		self.get_timetable_thread = GetTimeTableThread(sc)
@@ -59,9 +60,11 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 
 		self.widget = QWidget()
 		self.notify = MsgBox(parent=self.widget)
+		# Signal from msgbox onConfirm function
+		self.notify.confirm_signal.connect(self.resign)
 
-	def msg(self, title, content, timeout=5000):
-		self.notify.show(title=title, content=content, timeout=timeout).showAnimation()
+	def msg(self, title, content, timeout=5000, msg_type=None):
+		self.notify.show(title=title, content=content, timeout=timeout, msg_type=msg_type).showAnimation()
 
 	def refresh(self, _, date=None):
 		sc.regLink = dict()
@@ -127,7 +130,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.selectedLink = sc.regLink[(row, col)]
 		details = sc.reg_details(self.selectedLink)
 		for row in range(1, 15):
-			self.RegWindow.tableWidget.item(row, 1).setText(details[row-1])
+			self.Reg.tableWidget.item(row, 1).setText(details[row-1])
 
 		self.Reg.valid_update(sc.get_captcha())
 		self.reg()
@@ -179,16 +182,20 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			self.msg(' ', '加載完成', 1500)
 			#print('updated')
 
-	def show_reg(self):
-		self.RegWindow.show()
+	def reg(self):
+		self.Reg.show()
 
-	def resign(self, row ,col):
+	def show_resign_confirm(self, row, col):
 		if sc.resClickable.get((row, col)) is None:
 			return
 		elif not sc.is_login:
 			self.tb_user.setFocus()
 			return
+		self.selected_cell = (row, col)
+		self.msg(' ', '請按確定以取消', msg_type='RESIGN')
 
+	def resign(self):
+		row, col = self.selected_cell
 		self.resNum = sc.resLink[(row, col)]
 		print(self.resNum)
 		sc.res_details(self.resNum) # pop box confirm
@@ -235,13 +242,16 @@ class Register(QMainWindow, RegWindow.Ui_RegWindow):
 		validateCode = self.capBox.text()
 		print(validateCode)
 		sc.reg_post(link, validateCode)
+		MainWindow.status_update()
 		self.close()
 
 
 class MsgBox(QWidget, MsgWidget.Ui_Msg):
 	SignalClosed = QtCore.pyqtSignal()
+	confirm_signal = QtCore.pyqtSignal()
 	def __init__(self, title='', content='', timeout=0, *args, **kwargs):
 		super(MsgBox, self).__init__(*args, **kwargs)
+		self.msg_type = str()
 		self.setupUi(self)
 		self.setTitle(title).setContent(content).setIcon()
 		self._timeout = timeout
@@ -292,10 +302,12 @@ class MsgBox(QWidget, MsgWidget.Ui_Msg):
 		# QTimer.singleShot(100, self.closeAnimation)
 
 	def onConfirm(self):
-		self.is_confirm = True # !! Resign confirm
+		if self.msg_type == 'RESIGN':
+			self.confirm_signal.emit()
 		self.closeAnimation()
 
-	def show(self, title='', content='', timeout=5000):
+	def show(self, title='', content='', timeout=5000, msg_type=None):
+		self.msg_type = msg_type
 		self._timer.stop()
 		self.hide()
 		self.move(self.startPos)  # Initialize position to bottom right corner

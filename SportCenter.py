@@ -167,7 +167,6 @@ class SportCenter():
 				   re.search('''txtPlaceNum.*['"](\d{1,})''', web)[1],
 				   re.search('''lblPayStand.*>(\$NT\d{,3})''', web)[1]]
 
-
 		self.regformdata = {'VIEWSTATE':       re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
 						 'EVENTVALIDATION': re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
 						 'TimeStart':     re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
@@ -183,6 +182,7 @@ class SportCenter():
 
 	def reg_post(self, link, code):
 		url = self.root_url + '/facilities/' + link
+
 		data = {'__EVENTTARGET':     '',
 				'__EVENTARGUMENT':   '',
 				'__LASTFOCUS':       '',
