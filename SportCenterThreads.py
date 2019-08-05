@@ -16,7 +16,9 @@ class GetTimeTableThread(QThread):
 
     def run(self):
         # Emit signal to trigger the update table function
-        self.sig.emit(self.sc.get_timetable(self.date))
+        tmp = self.sc.get_timetable(self.date)
+
+        self.sig.emit(tmp)
 
     # Override the start function which takes one more parameter
     def start(self, date):
@@ -38,9 +40,5 @@ class LoginThread(QThread):
         self.wait()
 
     def run(self):
-        self.sig.emit(self.sc.login())
-
-    def start(self, username, password):
-        self.username = username
-        self.password = password
-        super(LoginThread, self).start()
+        tmp = self.sc.login()
+        self.sig.emit(tmp)
