@@ -39,7 +39,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 
 		self.week = 0
 		self.selectedLink = ''
-		self.Reg = Register()
+		self.RegWindow = Register()
 
 		# Create Thread
 		self.get_timetable_thread = GetTimeTableThread(sc)
@@ -130,10 +130,10 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		self.selectedLink = sc.regLink[(row, col)]
 		details = sc.reg_details(self.selectedLink)
 		for row in range(1, 15):
-			self.Reg.tableWidget.item(row, 1).setText(details[row-1])
+			self.RegWindow.tableWidget.item(row, 1).setText(details[row-1])
 
-		self.Reg.valid_update(sc.get_captcha())
-		self.reg()
+		self.RegWindow.valid_update(sc.get_captcha())
+		self.show_reg()
 
 	def login(self):
 		username = self.tb_user.text()
@@ -171,7 +171,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			sc.resClickable = dict()
 			self.table_initialize(self.tableWidget_status, (1,20), (0,5), 6)
 			data = sc.status()
-			for row in range(1,20):
+			for row in range(1, len(data)):
 				for col in range(0,5):
 					self.tableWidget_status.item(row, col).setText(data[row][col+1])
 
@@ -182,8 +182,8 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 			self.msg(' ', '加載完成', 1500)
 			#print('updated')
 
-	def reg(self):
-		self.Reg.show()
+	def show_reg(self):
+		self.RegWindow.show()
 
 	def show_resign_confirm(self, row, col):
 		if sc.resClickable.get((row, col)) is None:
@@ -198,9 +198,10 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		row, col = self.selected_cell
 		self.resNum = sc.resLink[(row, col)]
 		print(self.resNum)
-		sc.res_details(self.resNum) # pop box confirm
-		sc.res_post(self.resNum)
+		sc.res_details(self.resNum)
+		respond = sc.res_post(self.resNum)
 		self.status_update()
+		self.msg(' ', respond)
 
 
 class Register(QMainWindow, RegWindow.Ui_RegWindow):
@@ -241,8 +242,9 @@ class Register(QMainWindow, RegWindow.Ui_RegWindow):
 		link = MainWindow.selectedLink
 		validateCode = self.capBox.text()
 		print(validateCode)
-		sc.reg_post(link, validateCode)
+		respond = sc.reg_post(link, validateCode)
 		MainWindow.status_update()
+		MainWindow.msg(' ', respond)
 		self.close()
 
 

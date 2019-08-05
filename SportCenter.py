@@ -167,55 +167,55 @@ class SportCenter():
 				   re.search('''txtPlaceNum.*['"](\d{1,})''', web)[1],
 				   re.search('''lblPayStand.*>(\$NT\d{,3})''', web)[1]]
 
-		self.regformdata = {'VIEWSTATE':       re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
-						 'EVENTVALIDATION': re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
-						 'TimeStart':     re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
-						 'TimeEnd':       re.search('''hideTime.*['"](\d{1,2})''', web)[1],
-						 'hidbookDate':   re.search('''hidbookDate.*value=['"](.*?)['"]''', web)[1],
-						 'hidpayPrice':   re.search('''hidpayPrice.*value=['"](.*?)['"]''', web)[1],
-						 'hidpeekCharge': re.search('''hidpeekCharge.*value=['"](.*?)['"]''', web)[1],
-						 'hidoffCharge':  re.search('''hidoffCharge.*value=['"](.*?)['"]''', web)[1],
-						 'hidWeek':       re.search('''hidWeek.*value=['"](.*?)['"]''', web)[1],
-						 'hiddateLst':    re.search('''hiddateLst.*value=['"](.*?)['"]''', web)[1]}
+		self.regformdata = {'VIEWSTATE'			: re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
+							'EVENTVALIDATION'	: re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
+							'TimeStart'			: re.search('''hidsTime.*['"](\d{1,2})''', web)[1],
+							'TimeEnd'			: re.search('''hideTime.*['"](\d{1,2})''', web)[1],
+							'hidbookDate'		: re.search('''hidbookDate.*value=['"](.*?)['"]''', web)[1],
+							'hidpayPrice'		: re.search('''hidpayPrice.*value=['"](.*?)['"]''', web)[1],
+							'hidpeekCharge'		: re.search('''hidpeekCharge.*value=['"](.*?)['"]''', web)[1],
+							'hidoffCharge'		: re.search('''hidoffCharge.*value=['"](.*?)['"]''', web)[1],
+							'hidWeek'			: re.search('''hidWeek.*value=['"](.*?)['"]''', web)[1],
+							'hiddateLst'		: re.search('''hiddateLst.*value=['"](.*?)['"]''', web)[1]}
 
 		return details
 
 	def reg_post(self, link, code):
 		url = self.root_url + '/facilities/' + link
 
-		data = {'__EVENTTARGET':     '',
-				'__EVENTARGUMENT':   '',
-				'__LASTFOCUS':       '',
-				'__VIEWSTATE':       self.regformdata['VIEWSTATE'],
-				'__EVENTVALIDATION': self.regformdata['EVENTVALIDATION'],
+		data = {'__EVENTTARGET'									: '',
+				'__EVENTARGUMENT'								: '',
+				'__LASTFOCUS'									: '',
+				'__VIEWSTATE'									: self.regformdata['VIEWSTATE'],
+				'__EVENTVALIDATION'								: self.regformdata['EVENTVALIDATION'],
 
-				'ctl00$ContentPlaceHolder1$txtContactName':   '',
-				'ctl00$ContentPlaceHolder1$txtContactTel':    '',
-				'ctl00$ContentPlaceHolder1$txtFax':           '',
-				'ctl00$ContentPlaceHolder1$txtEmail':         '{}@ntu.edu.tw'.format(self.username),
-				'ctl00$ContentPlaceHolder1$DropLstPayMethod': '現金',
-				'ctl00$ContentPlaceHolder1$txtpayHourNum':    '',
-				'ctl00$ContentPlaceHolder1$DropLstTimeStart': self.regformdata['TimeStart'], #
-				'ctl00$ContentPlaceHolder1$DropLstTimeEnd':   self.regformdata['TimeEnd'], #
-				'ctl00$ContentPlaceHolder1$txtPlaceNum':      '1',
-				'ctl00$ContentPlaceHolder1$txtValidateCode':  '{}'.format(code),
-				'ctl00$ContentPlaceHolder1$btnOrder':         '送出預約',
-				'ctl00$ContentPlaceHolder1$hidbookDate':      self.regformdata['hidbookDate'], #
-				'ctl00$ContentPlaceHolder1$hidmemberId':      '{}'.format(self.username),
-				'ctl00$ContentPlaceHolder1$hidplaceSeq':      '1',
-				'ctl00$ContentPlaceHolder1$hidpayPrice':      self.regformdata['hidpayPrice'], #
-				'ctl00$ContentPlaceHolder1$hidpeekCharge':    self.regformdata['hidpeekCharge'], #
-				'ctl00$ContentPlaceHolder1$hidoffCharge':     self.regformdata['hidoffCharge'], #
-				'ctl00$ContentPlaceHolder1$hidsTime':         self.regformdata['TimeStart'], #
-				'ctl00$ContentPlaceHolder1$hideTime':         self.regformdata['TimeEnd'], #
-				'ctl00$ContentPlaceHolder1$hidWeek':          self.regformdata['hidWeek'],
-				'ctl00$ContentPlaceHolder1$hiddateLst':       self.regformdata['hiddateLst']}
+				'ctl00$ContentPlaceHolder1$txtContactName'		: '',
+				'ctl00$ContentPlaceHolder1$txtContactTel'		: '',
+				'ctl00$ContentPlaceHolder1$txtFax'				: '',
+				'ctl00$ContentPlaceHolder1$txtEmail'			: '{}@ntu.edu.tw'.format(self.username),
+				'ctl00$ContentPlaceHolder1$DropLstPayMethod'	: '現金',
+				'ctl00$ContentPlaceHolder1$txtpayHourNum'		: '',
+				'ctl00$ContentPlaceHolder1$DropLstTimeStart'	: self.regformdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$DropLstTimeEnd'		: self.regformdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$txtPlaceNum'			: '1',
+				'ctl00$ContentPlaceHolder1$txtValidateCode'		: '{}'.format(code),
+				'ctl00$ContentPlaceHolder1$btnOrder'			: '送出預約',
+				'ctl00$ContentPlaceHolder1$hidbookDate'			: self.regformdata['hidbookDate'], #
+				'ctl00$ContentPlaceHolder1$hidmemberId'			: '{}'.format(self.username),
+				'ctl00$ContentPlaceHolder1$hidplaceSeq'			: '1',
+				'ctl00$ContentPlaceHolder1$hidpayPrice'			: self.regformdata['hidpayPrice'], #
+				'ctl00$ContentPlaceHolder1$hidpeekCharge'		: self.regformdata['hidpeekCharge'], #
+				'ctl00$ContentPlaceHolder1$hidoffCharge'		: self.regformdata['hidoffCharge'], #
+				'ctl00$ContentPlaceHolder1$hidsTime'			: self.regformdata['TimeStart'], #
+				'ctl00$ContentPlaceHolder1$hideTime'			: self.regformdata['TimeEnd'], #
+				'ctl00$ContentPlaceHolder1$hidWeek'				: self.regformdata['hidWeek'],
+				'ctl00$ContentPlaceHolder1$hiddateLst'			: self.regformdata['hiddateLst']}
 
-		print(data)
-		result = self.s.post(url, data=data)
-		print(result.text)
-		if '成功' in result.text:
-			print('成功')
+		#print(data)
+		respond = self.s.post(url, data=data)
+		message = re.search('''alert\('(.*?)[！，]''', respond.text)[1]
+		print(respond.text)
+		return message
 
 	def get_captcha(self):
 		url = self.root_url + '/facilities/ValidateCode.aspx?ImgID=Login'
@@ -225,26 +225,28 @@ class SportCenter():
 	def res_details(self, num):
 		url = self.root_url + '/facilities/PlaceOrderMemLst.aspx?bookSeq=' + num
 		web = self.s.get(url).text
-		self.resformdata = {'VIEWSTATE':       re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
-							'EVENTVALIDATION': re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
-							'hidfldmemberId': re.search('''hidfldmemberId.*value=['"](.*?)['"]''', web)[1],
-							'hidfldpoints':   re.search('''hidfldpoints.*value=['"](.*?)['"]''', web)[1],
-							'hidfldplaceSeq': re.search('''hidfldplaceSeq.*value=['"](.*?)['"]''', web)[1]}
+		self.resformdata = {'VIEWSTATE'			: re.search('''__VIEWSTATE.*value=['"](.*?)['"]''', web)[1],
+							'EVENTVALIDATION'	: re.search('''__EVENTVALIDATION.*value=['"](.*?)['"]''', web)[1],
+							'hidfldmemberId'	: re.search('''hidfldmemberId.*value=['"](.*?)['"]''', web)[1],
+							'hidfldpoints'		: re.search('''hidfldpoints.*value=['"](.*?)['"]''', web)[1],
+							'hidfldplaceSeq'	: re.search('''hidfldplaceSeq.*value=['"](.*?)['"]''', web)[1]}
 		print(self.resformdata)
 
 	def res_post(self, num):
 		url = self.root_url + '/facilities/PlaceOrderMemLst.aspx?bookSeq=' + num
 		# self.res_details()
 
-		data = {'__EVENTTARGET':     '',
-				'__EVENTARGUMENT':   '',
-				'__VIEWSTATE':       self.resformdata['VIEWSTATE'],
-				'__EVENTVALIDATION': self.resformdata['EVENTVALIDATION'],
+		data = {'__EVENTTARGET'								: '',
+				'__EVENTARGUMENT'							: '',
+				'__VIEWSTATE'								: self.resformdata['VIEWSTATE'],
+				'__EVENTVALIDATION'							: self.resformdata['EVENTVALIDATION'],
 
-				'ctl00$ContentPlaceHolder1$hidfldmemberId': self.resformdata['hidfldmemberId'],
-				'ctl00$ContentPlaceHolder1$hidfldpoints':   self.resformdata['hidfldpoints'],
-				'ctl00$ContentPlaceHolder1$hidfldplaceSeq': self.resformdata['hidfldplaceSeq'],
-				'ctl00$ContentPlaceHolder1$btnCancelOrder': '取消預約'}
+				'ctl00$ContentPlaceHolder1$hidfldmemberId'	: self.resformdata['hidfldmemberId'],
+				'ctl00$ContentPlaceHolder1$hidfldpoints'	: self.resformdata['hidfldpoints'],
+				'ctl00$ContentPlaceHolder1$hidfldplaceSeq'	: self.resformdata['hidfldplaceSeq'],
+				'ctl00$ContentPlaceHolder1$btnCancelOrder'	: '取消預約'}
 
-		result = self.s.post(url, data=data)
-		print(result.text)
+		respond = self.s.post(url, data=data)
+		message = re.search('''alert\('(.*?)。'\)''', respond.text)[1]
+		print(respond.text)
+		return message
