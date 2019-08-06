@@ -20,7 +20,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 	def __init__(self):
 		super(self.__class__, self).__init__()
 		self.setupUi(self)
-		self.setWindowIcon(QtGui.QIcon('Gui/dev.ico'))
+		self.setWindowIcon(QtGui.QIcon('dev.ico'))
 		self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
 
 		size = self.geometry()
@@ -99,7 +99,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 					self.tableWidget.item(row, col).setText(data[runtime-1][i])
 
 					if sc.regClickable.get((row, col)):
-						brush = QtGui.QBrush(QtGui.QColor(50, 215, 50))
+						brush = QtGui.QBrush(QtGui.QColor(0, 0, 255))
 						self.tableWidget.item(row, col).setForeground(brush)
 						self.tableWidget.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei', 8, QtGui.QFont.Bold))
 					i += 1
@@ -176,7 +176,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 					self.tableWidget_status.item(row, col).setText(data[row][col+1])
 
 					if sc.resClickable.get((row, col)):
-						brush = QtGui.QBrush(QtGui.QColor(50, 215, 50))
+						brush = QtGui.QBrush(QtGui.QColor(0, 0, 255))
 						self.tableWidget_status.item(row, col).setForeground(brush)
 						self.tableWidget_status.item(row, col).setFont(QtGui.QFont('Microsoft JhengHei', 6, QtGui.QFont.Bold))
 			self.msg(' ', '加載完成', 1500)
@@ -291,7 +291,7 @@ class MsgBox(QWidget, MsgWidget.Ui_Msg):
 		return self
 
 	def setIcon(self):
-		self.lbl_icon.setPixmap(QtGui.QPixmap('Gui/dev.ico').scaled(80, 80))
+		self.lbl_icon.setPixmap(QtGui.QPixmap('dev.ico').scaled(80, 80))
 		return self
 
 	def setTimeout(self, timeout):
