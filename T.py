@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QMainWindow, QWidget, QApplication, QDesktopWidget, QLabel, QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QWidget, QApplication, QDesktopWidget, QLabel, QLineEdit, QSpinBox
 import MainWindow
 import RegWindow
 import MsgWidget
@@ -238,11 +238,17 @@ class Register(QMainWindow, RegWindow.Ui_RegWindow):
 		self.capBox.setAlignment(QtCore.Qt.AlignCenter)
 		self.tableWidget.setCellWidget(15, 1, self.capBox)
 
+		self.spinBox = QSpinBox()
+		self.spinBox.setMinimum(1)
+		self.spinBox.setAlignment(QtCore.Qt.AlignCenter)
+		self.tableWidget.setCellWidget(13, 1, self.spinBox)
+
 	def order(self):
 		link = MainWindow.selectedLink
 		validateCode = self.capBox.text()
+		placeNum = self.spinBox.value()
 		print(validateCode)
-		respond = sc.reg_post(link, validateCode)
+		respond = sc.reg_post(link, validateCode, placeNum)
 		MainWindow.status_update()
 		MainWindow.msg(' ', respond)
 		self.close()

@@ -180,7 +180,7 @@ class SportCenter():
 
 		return details
 
-	def reg_post(self, link, code):
+	def reg_post(self, link, code, num):
 		url = self.root_url + '/facilities/' + link
 
 		data = {'__EVENTTARGET'									: '',
@@ -197,7 +197,7 @@ class SportCenter():
 				'ctl00$ContentPlaceHolder1$txtpayHourNum'		: '',
 				'ctl00$ContentPlaceHolder1$DropLstTimeStart'	: self.regformdata['TimeStart'], #
 				'ctl00$ContentPlaceHolder1$DropLstTimeEnd'		: self.regformdata['TimeEnd'], #
-				'ctl00$ContentPlaceHolder1$txtPlaceNum'			: '1',
+				'ctl00$ContentPlaceHolder1$txtPlaceNum'			: num,
 				'ctl00$ContentPlaceHolder1$txtValidateCode'		: '{}'.format(code),
 				'ctl00$ContentPlaceHolder1$btnOrder'			: '送出預約',
 				'ctl00$ContentPlaceHolder1$hidbookDate'			: self.regformdata['hidbookDate'], #
