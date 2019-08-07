@@ -50,7 +50,7 @@ class Main(QMainWindow, MainWindow.Ui_MainWindow):
 		# Connect the signal to update table function
 		self.login_thread.sig.connect(self._after_login)
 
-		self.heartbeatLoop = threading.Thread(target=sc.heartbeat)
+		self.heartbeatLoop = threading.Thread(target=sc.heartbeat, daemon=True)
 
 		sc.load_account()
 		if sc.save:
